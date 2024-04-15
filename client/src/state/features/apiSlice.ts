@@ -4,7 +4,7 @@ import { TUser } from "types/app.interface"
 
 const API_URL = import.meta.env.VITE_API_BASE_URL
 
-export const apiSlice = createApi(
+export const apiSlice: any = createApi(
 	{
 		baseQuery: fetchBaseQuery({ baseUrl: API_URL + "/api" }),
 		reducerPath: "api",

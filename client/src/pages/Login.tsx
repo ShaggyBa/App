@@ -5,21 +5,14 @@ import { useDispatch, useSelector } from "react-redux"
 import Button from "components/Button"
 import FormField from "components/FormField"
 import { ILoginForm } from "types/app.interface"
-import { useGetUserQuery } from "state/features/apiSlice"
 import { login, setCredentials } from "state/features/authSlice"
+import { useLoginMutation } from "state/api/user"
+import { toast } from "sonner"
+import { Loader } from "components/Loader"
 
 const Login = () => {
 
-	const { user, testId } = useSelector((state: any) => state.auth)
-
-	const dispatch = useDispatch()
-
-	const { data, isSuccess } = useGetUserQuery(testId);
-
-	if (isSuccess) {
-		dispatch(login(data))
-		dispatch(setCredentials(data))
-	}
+	const { user } = useSelector((state: any) => state.auth)
 
 	const {
 		register,
@@ -28,16 +21,26 @@ const Login = () => {
 		reset
 	} = useForm<ILoginForm>()
 
+	const dispatch = useDispatch()
 	const navigate = useNavigate()
+
+	const [login, { isLoading }] = useLoginMutation()
+
+	const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
+		try {
+			const result = await login(data).unwrap()
+			dispatch(setCredentials(result))
+			navigate("/")
+		} catch (err) {
+			toast.error(err?.data?.message || err.message)
+		}
+		reset()
+	}
 
 	useEffect(() => {
 		user && navigate('/dashboard')
 	}, [user])
 
-	const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
-		console.log(data)
-		reset()
-	}
 
 	return (
 		<div className="w-full min-h-screen flex flex-col justify-center items-center lg:flex-row bg-[#f3f4f6]">
@@ -111,7 +114,15 @@ const Login = () => {
 								Forgot the password?
 							</span>
 
-							<Button type="submit" label="Login" className="w-full h-10 bg-blue-700 text-white rounded-full" />
+							{
+								!isLoading
+									? <Button
+										type="submit"
+										label="Login"
+										className="w-full h-10 bg-blue-700 text-white rounded-full"
+									/>
+									: <Loader />
+							}
 
 						</div>
 					</form>

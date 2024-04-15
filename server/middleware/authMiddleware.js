@@ -7,8 +7,9 @@ const protectRoute = async (req, res, next) => {
 
 		if (token) {
 			const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
-			// decodedToken.userId - возможно придется поменять
+
 			const resp = await User.findById(decodedToken.userId).select("isAdmin email")
+
 
 			req.user = {
 				email: resp.email,
@@ -19,12 +20,11 @@ const protectRoute = async (req, res, next) => {
 			next()
 		}
 		else {
-			return res.status(401).json({ status: false, message: "Not authorized. Try again." })
+			return res.status(401).json({ status: false, message: "Not authorized (common). Try again." })
 		}
 	}
 
 	catch (err) {
-		console.log("Auth middleware error: ", err);
 		return res.status(401).json({ status: false, message: "Not authorized. Try again." })
 	}
 }
@@ -34,7 +34,7 @@ const isAdminRoute = async (req, res, next) => {
 	if (req.user && req.user.isAdmin) {
 		next()
 	} else {
-		return res.status(401).json({ status: false, message: "Not authorized. Try again." })
+		return res.status(401).json({ status: false, message: "Not authorized (admin). Try again." })
 	}
 }
 

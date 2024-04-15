@@ -6,8 +6,10 @@ import { AddUser } from "components/UsersList/AddUser"
 import { ListHead } from "components/UsersList/ListHead"
 import { ListRow } from "components/UsersList/ListRow"
 import { summary } from "data/data"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { IoMdAdd } from "react-icons/io"
+import { toast } from "sonner"
+import { useDeleteUserMutation, useGetTeamUsersQuery } from "state/api/actionsUser"
 
 const Users = () => {
 
@@ -15,6 +17,12 @@ const Users = () => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [openAction, setOpenAction] = useState(false)
 	const [selected, setSelected] = useState("")
+	const [currentUsersList, setCurrentUsersList] = useState([])
+
+	const { data: getUsers } = useGetTeamUsersQuery()
+
+	const [deleteUser] = useDeleteUserMutation()
+
 
 	const deleteClick = (id: string) => {
 		setSelected(id);
@@ -26,18 +34,27 @@ const Users = () => {
 		setIsOpen(true);
 	};
 
-	const deleteHandler = () => {
-
+	const deleteHandler = async (userId: string) => {
+		await deleteUser(userId)
 	}
 
-	const userActionHandler = () => {
+	const userActionHandler = async (userId: string) => {
+		try {
 
+		}
+		catch (err) {
+			toast.error(err?.data?.message || err.message)
+		}
 	}
 
 	const addNewUserHandler = () => {
 		setIsOpen(true)
 		setSelected("")
 	}
+
+	useEffect(() => {
+		setCurrentUsersList(getUsers)
+	}, [getUsers])
 
 	return (
 		<>
@@ -54,19 +71,22 @@ const Users = () => {
 
 				<div className="bg-white px-2 md:px-4 py-4">
 					<div className="overflow-x-auto">
-						<table className="w-full mb-5">
-							<ListHead />
-						</table>
-						<tbody>
-							{summary.users?.map((user, index: number) => (
-								<ListRow
-									key={index}
-									user={user}
-									editHandler={editClick}
-									deleteHandler={deleteClick}
-								/>
-							))}
-						</tbody>
+						{currentUsersList
+							?
+							<table className="w-full mb-5">
+								<ListHead />
+								<tbody>
+									{currentUsersList?.map((user, index: number) => (
+										<ListRow
+											key={index}
+											user={user}
+											editHandler={editClick}
+											deleteHandler={deleteClick}
+										/>
+									))}
+								</tbody>
+							</table>
+							: <p>Team is empty.</p>}
 					</div>
 				</div>
 
@@ -75,7 +95,7 @@ const Users = () => {
 			<AddUser
 				open={isOpen}
 				setOpen={setIsOpen}
-				data={selected}
+				selectedUser={selected}
 				key={new Date().getTime().toString()}
 			/>
 

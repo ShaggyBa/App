@@ -9,7 +9,7 @@ type Props = {
 	setOpen: (open: boolean) => void
 	msg?: string
 	setMsg?: (msg: string) => void
-	onClick?: () => void
+	onClick?: (userId: string) => void
 	type?: string
 	setType?: (type: "delete" | "cancel") => void
 }

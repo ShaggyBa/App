@@ -4,22 +4,55 @@ import { Loader } from "components/Loader";
 import { ModalWrapper } from "components/ModalWrapper";
 import { Textbox } from "components/TextBox";
 import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import { useUpdateUserProfileMutation } from "state/api/actionsUser";
+import { useRegisterMutation } from "state/api/user";
+import { setCredentials } from "state/features/authSlice";
 
-export const AddUser = ({ open, setOpen, data }: { open: boolean, setOpen: (open: boolean) => void, data?: any }) => {
-	let defaultValues = data ?? {};
+export const AddUser = ({ open, setOpen, selectedUser }: { open: boolean, setOpen: (open: boolean) => void, selectedUser?: any }) => {
+	let defaultValues = selectedUser ?? {};
 	const { user } = useSelector((state: any) => state.auth);
 
-	const isLoading = false,
-		isUpdating = false;
+	const dispatch = useDispatch()
 
 	const {
 		register,
 		handleSubmit,
+		reset,
 		formState: { errors },
 	} = useForm({ defaultValues });
 
-	const handleOnSubmit = () => { };
+	const [addNewUser, { isLoading }] = useRegisterMutation()
+	const [updateUser, { isLoading: isUpdating }] = useUpdateUserProfileMutation()
+
+	const handleOnSubmit = async (data: { name: string, title: string, email: string, password: string, role: string }) => {
+		try {
+			if (!selectedUser) {
+				await addNewUser(data).unwrap()
+				toast.success("User added successfully")
+			}
+			else {
+				const res = await updateUser({ ...data }).unwrap()
+				console.log(data, res)
+				toast.success("User updated successfully")
+
+				// if (user?._id === selectedUser?._id) {
+				// 	dispatch(setCredentials({ ...res.user }))
+				// }
+			}
+
+			setTimeout(() => {
+				setOpen(false);
+				reset()
+
+			}, 500);
+		}
+		catch (err) {
+			toast.error("Something went wrong: " + err)
+		}
+
+	};
 
 	return (
 		<>
@@ -29,7 +62,7 @@ export const AddUser = ({ open, setOpen, data }: { open: boolean, setOpen: (open
 						as='h2'
 						className='text-base font-bold leading-6 text-gray-900 mb-4'
 					>
-						{data ? "UPDATE PROFILE" : "ADD NEW USER"}
+						{selectedUser ? "UPDATE PROFILE" : "ADD NEW USER"}
 					</Dialog.Title>
 					<div className='mt-2 flex flex-col gap-6'>
 						<Textbox
@@ -39,7 +72,7 @@ export const AddUser = ({ open, setOpen, data }: { open: boolean, setOpen: (open
 							label='Full Name'
 							className='w-full rounded'
 							register={register("name", {
-								required: "Full name is required!",
+								required: selectedUser ? false : "Full name is required!",
 							})}
 							error={errors.name ? errors.name.message : ""}
 						/>
@@ -50,7 +83,7 @@ export const AddUser = ({ open, setOpen, data }: { open: boolean, setOpen: (open
 							label='Title'
 							className='w-full rounded'
 							register={register("title", {
-								required: "Title is required!",
+								required: selectedUser ? false : "Title is required!",
 							})}
 							error={errors.title ? errors.title.message : ""}
 						/>
@@ -61,9 +94,21 @@ export const AddUser = ({ open, setOpen, data }: { open: boolean, setOpen: (open
 							label='Email Address'
 							className='w-full rounded'
 							register={register("email", {
-								required: "Email Address is required!",
+								required: selectedUser ? false : "Email Address is required!",
 							})}
 							error={errors.email ? errors.email.message : ""}
+						/>
+
+						<Textbox
+							placeholder='Password'
+							type='password'
+							name='password'
+							label='Password'
+							className='w-full rounded'
+							register={register("password", {
+								required: selectedUser ? false : "Password is required!",
+							})}
+							error={errors.password ? errors.password.message : ""}
 						/>
 
 						<Textbox
@@ -73,7 +118,7 @@ export const AddUser = ({ open, setOpen, data }: { open: boolean, setOpen: (open
 							label='Role'
 							className='w-full rounded'
 							register={register("role", {
-								required: "User role is required!",
+								required: selectedUser ? false : "User role is required!",
 							})}
 							error={errors.role ? errors.role.message : ""}
 						/>
@@ -87,7 +132,7 @@ export const AddUser = ({ open, setOpen, data }: { open: boolean, setOpen: (open
 						<div className='py-3 mt-4 sm:flex sm:flex-row-reverse'>
 							<Button
 								type='submit'
-								className='bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700  sm:w-auto'
+								className='bg-red-600 px-8 text-sm font-semibold text-white hover:bg-red-700 rounded  sm:w-auto'
 								label='Submit'
 							/>
 

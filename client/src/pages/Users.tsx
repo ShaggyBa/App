@@ -5,34 +5,49 @@ import { Title } from "components/Title"
 import { AddUser } from "components/UsersList/AddUser"
 import { ListHead } from "components/UsersList/ListHead"
 import { ListRow } from "components/UsersList/ListRow"
-import { summary } from "data/data"
 import { useEffect, useState } from "react"
 import { IoMdAdd } from "react-icons/io"
 import { toast } from "sonner"
-import { useDeleteUserMutation, useGetTeamUsersQuery } from "state/api/actionsUser"
+import { useDeleteUserMutation, useGetTeamUsersQuery, useSetUserStatusMutation } from "state/api/actionsUser"
+import { useRegisterMutation } from "state/api/user"
+import { TUser } from "types/app.interface"
 
 const Users = () => {
 
 	const [openDialog, setOpenDialog] = useState(false)
 	const [isOpen, setIsOpen] = useState(false)
 	const [openAction, setOpenAction] = useState(false)
-	const [selected, setSelected] = useState("")
+	const [selected, setSelected] = useState({})
 	const [currentUsersList, setCurrentUsersList] = useState([])
 
-	const { data: getUsers } = useGetTeamUsersQuery()
+	const { data: getUsers, refetch } = useGetTeamUsersQuery()
 
 	const [deleteUser] = useDeleteUserMutation()
 
+	const [userSetStatus] = useSetUserStatusMutation()
 
-	const deleteClick = (id: string) => {
-		setSelected(id);
+	const [register] = useRegisterMutation()
+
+	const deleteClick = (user: any) => {
+		setSelected(user);
 		setOpenDialog(true);
 	};
 
-	const editClick = (el: any) => {
-		setSelected(el);
+	const editClick = (user: any) => {
+		setSelected(user);
 		setIsOpen(true);
 	};
+
+	const registerUser = async (user: TUser) => {
+		try {
+			const result = await register(user)
+
+			toast.success(`User: ${user.name} was created successfully`)
+		}
+		catch (err) {
+			toast.error(err?.data?.message || err.message)
+		}
+	}
 
 	const deleteHandler = async (userId: string) => {
 		await deleteUser(userId)
@@ -40,7 +55,12 @@ const Users = () => {
 
 	const userActionHandler = async (userId: string) => {
 		try {
+			const result = await userSetStatus({ userId: userId, isActive: !selected })
 
+			refetch()
+			setSelected({})
+
+			toast.success(result?.data?.message)
 		}
 		catch (err) {
 			toast.error(err?.data?.message || err.message)
@@ -49,7 +69,7 @@ const Users = () => {
 
 	const addNewUserHandler = () => {
 		setIsOpen(true)
-		setSelected("")
+		setSelected({})
 	}
 
 	useEffect(() => {

@@ -1,8 +1,9 @@
 import clsx from "clsx";
 import Button from "components/Button";
 import { getInitials } from "utils/index";
+import { IUserTableInfo } from "types/user.types"
 
-export const ListRow = ({ user, editHandler, deleteHandler }: { user: any, editHandler: any, deleteHandler: any }) => (
+export const ListRow = ({ user, editHandler, deleteHandler }: { user: IUserTableInfo, editHandler: any, deleteHandler: any }) => (
 	<tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-400/10'>
 		<td className='p-2'>
 			<div className='flex items-center gap-3'>
@@ -43,7 +44,7 @@ export const ListRow = ({ user, editHandler, deleteHandler }: { user: any, editH
 				className='text-purple-700 hover:text-red-500 font-semibold sm:px-0'
 				label='Delete'
 				type='button'
-				onClick={() => deleteHandler(user?._id)}
+				onClick={() => deleteHandler(user)}
 			/>
 		</td>
 	</tr>

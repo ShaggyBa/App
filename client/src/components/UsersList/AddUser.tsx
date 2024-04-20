@@ -37,9 +37,9 @@ export const AddUser = ({ open, setOpen, selectedUser }: { open: boolean, setOpe
 				console.log(data, res)
 				toast.success("User updated successfully")
 
-				// if (user?._id === selectedUser?._id) {
-				// 	dispatch(setCredentials({ ...res.user }))
-				// }
+				if (user?._id === selectedUser?._id) {
+					dispatch(setCredentials({ ...res.user }))
+				}
 			}
 
 			setTimeout(() => {
@@ -49,7 +49,7 @@ export const AddUser = ({ open, setOpen, selectedUser }: { open: boolean, setOpe
 			}, 500);
 		}
 		catch (err) {
-			toast.error("Something went wrong: " + err)
+			toast.error("Something went wrong: " + err?.data?.message || err.message)
 		}
 
 	};

@@ -9,9 +9,10 @@ type Props = {
 	setOpen: (open: boolean) => void
 	msg?: string
 	setMsg?: (msg: string) => void
-	onClick?: (userId: string) => void
+	onClick?: (param: any) => void
 	type?: string
 	setType?: (type: "delete" | "cancel") => void
+	param?: any
 }
 
 export const ConfirmationWindow = (
@@ -21,8 +22,9 @@ export const ConfirmationWindow = (
 		msg,
 		setMsg = () => { },
 		onClick = () => { },
-		type = "restore",
+		type,
 		setType = () => { },
+		param
 	}: Props) => {
 
 	const closeDialog = () => {
@@ -30,6 +32,11 @@ export const ConfirmationWindow = (
 		setMsg("");
 		setOpen(false);
 	};
+
+	const onClickHandler = () => {
+		onClick(param);
+		closeDialog();
+	}
 
 	return (
 		<>
@@ -61,14 +68,14 @@ export const ConfirmationWindow = (
 									? "bg-purple-600"
 									: "bg-red-600 hover:bg-red-500"
 							)}
-							onClick={onClick}
+							onClick={() => onClickHandler()}
 							label={type === "restore" ? "Restore" : "Delete"}
 						/>
 
 						<Button
 							type='button'
 							className='bg-white px-8 text-sm font-semibold text-gray-900 sm:w-auto border'
-							onClick={() => closeDialog()}
+							onClick={closeDialog}
 							label='Cancel'
 						/>
 					</div>

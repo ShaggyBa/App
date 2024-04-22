@@ -4,7 +4,7 @@ import { ConfirmationWindow } from "components/TaskSettings/ConfirmationWindow";
 import { Title } from "components/Title";
 import { ListHead } from "components/TrashList/ListHead";
 import { ListRow } from "components/TrashList/ListRow";
-import { AddUser } from "components/UsersList/AddUser";
+import { AddUserForm } from "components/UsersList/AddUserForm";
 import { tasks } from "data/data";
 import { useState } from "react";
 import {
@@ -85,7 +85,7 @@ const Trash = () => {
 				</div>
 			</div>
 
-			<AddUser open={open} setOpen={setOpen} />
+			<AddUserForm open={open} setOpen={setOpen} />
 
 			<ConfirmationWindow
 				open={openDialog}

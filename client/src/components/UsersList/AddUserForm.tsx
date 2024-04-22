@@ -9,9 +9,18 @@ import { toast } from "sonner";
 import { useUpdateUserProfileMutation } from "state/api/actionsUser";
 import { useRegisterMutation } from "state/api/user";
 import { setCredentials } from "state/features/authSlice";
+import { TUser } from "types/app.interface";
 
-export const AddUser = ({ open, setOpen, selectedUser }: { open: boolean, setOpen: (open: boolean) => void, selectedUser?: any }) => {
-	let defaultValues = selectedUser ?? {};
+export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { open: boolean, setOpen: (open: boolean) => void, selectedUser?: TUser, refetchRequest?: any }) => {
+	let defaultValues = selectedUser ? { ...selectedUser } : {
+		name: "",
+		title: "",
+		email: "",
+		password: "",
+		role: "",
+	};
+
+
 	const { user } = useSelector((state: any) => state.auth);
 
 	const dispatch = useDispatch()
@@ -21,7 +30,7 @@ export const AddUser = ({ open, setOpen, selectedUser }: { open: boolean, setOpe
 		handleSubmit,
 		reset,
 		formState: { errors },
-	} = useForm({ defaultValues });
+	}: any = useForm({ defaultValues });
 
 	const [addNewUser, { isLoading }] = useRegisterMutation()
 	const [updateUser, { isLoading: isUpdating }] = useUpdateUserProfileMutation()
@@ -30,11 +39,13 @@ export const AddUser = ({ open, setOpen, selectedUser }: { open: boolean, setOpe
 		try {
 			if (!selectedUser) {
 				await addNewUser(data).unwrap()
+				await refetchRequest()
 				toast.success("User added successfully")
 			}
 			else {
 				const res = await updateUser({ ...data }).unwrap()
-				console.log(data, res)
+				console.log(res)
+				await refetchRequest()
 				toast.success("User updated successfully")
 
 				if (user?._id === selectedUser?._id) {
@@ -48,8 +59,8 @@ export const AddUser = ({ open, setOpen, selectedUser }: { open: boolean, setOpe
 
 			}, 500);
 		}
-		catch (err) {
-			toast.error("Something went wrong: " + err?.data?.message || err.message)
+		catch (err: any) {
+			toast.error("Something went wrong: " + err.message)
 		}
 
 	};

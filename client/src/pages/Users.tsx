@@ -2,22 +2,21 @@ import Button from "components/Button"
 import { Actions } from "components/TaskSettings/Actions"
 import { ConfirmationWindow } from "components/TaskSettings/ConfirmationWindow"
 import { Title } from "components/Title"
-import { AddUser } from "components/UsersList/AddUser"
+import { AddUserForm } from "components/UsersList/AddUserForm"
 import { ListHead } from "components/UsersList/ListHead"
 import { ListRow } from "components/UsersList/ListRow"
 import { useEffect, useState } from "react"
 import { IoMdAdd } from "react-icons/io"
 import { toast } from "sonner"
 import { useDeleteUserMutation, useGetTeamUsersQuery, useSetUserStatusMutation } from "state/api/actionsUser"
-import { useRegisterMutation } from "state/api/user"
 import { TUser } from "types/app.interface"
 
 const Users = () => {
 
-	const [openDialog, setOpenDialog] = useState(false)
-	const [isOpen, setIsOpen] = useState(false)
-	const [openAction, setOpenAction] = useState(false)
-	const [selected, setSelected] = useState({})
+	const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
+	const [openEditModal, setOpenEditModal] = useState<boolean>(false)
+	const [openAction, setOpenAction] = useState<boolean>(false)
+	const [selected, setSelected] = useState<TUser | null>(null)
 	const [currentUsersList, setCurrentUsersList] = useState([])
 
 	const { data: getUsers, refetch } = useGetTeamUsersQuery()
@@ -26,50 +25,55 @@ const Users = () => {
 
 	const [userSetStatus] = useSetUserStatusMutation()
 
-	const [register] = useRegisterMutation()
-
-	const deleteClick = (user: any) => {
+	const handleSetOpenDeleteModal = (user: TUser) => {
 		setSelected(user);
-		setOpenDialog(true);
+		setOpenDeleteModal(true);
 	};
 
-	const editClick = (user: any) => {
+	const handleSetUserManageModal = (user?: TUser) => {
+		if (user) {
+			setSelected(user);
+		}
+		else {
+			setSelected(null)
+		}
+
+		setOpenEditModal(true)
+	}
+
+	const handleSetUserStatus = (user: TUser) => {
 		setSelected(user);
-		setIsOpen(true);
-	};
+		setOpenAction(true);
+	}
 
-	const registerUser = async (user: TUser) => {
+	const deleteHandler = async (user: TUser) => {
 		try {
-			const result = await register(user)
-
-			toast.success(`User: ${user.name} was created successfully`)
+			await deleteUser(user._id)
+			await refetch()
+			toast.success(`User: ${user.name} was deleted successfully`)
 		}
-		catch (err) {
-			toast.error(err?.data?.message || err.message)
+		catch (err: any) {
+			toast.error("Error while deleting: " + err.message);
 		}
 	}
 
-	const deleteHandler = async (userId: string) => {
-		await deleteUser(userId)
-	}
-
-	const userActionHandler = async (userId: string) => {
+	const userActionHandler = async () => {
 		try {
-			const result = await userSetStatus({ userId: userId, isActive: !selected })
+			if (selected === null) throw new Error("Please select a user")
+			const result = await userSetStatus({ userId: selected._id, isActive: !selected.isActive })
+			updateTable(result.data.message)
 
-			refetch()
-			setSelected({})
-
-			toast.success(result?.data?.message)
+			setOpenAction(false)
 		}
-		catch (err) {
-			toast.error(err?.data?.message || err.message)
+		catch (err: any) {
+			toast.error(err.message);
 		}
 	}
 
-	const addNewUserHandler = () => {
-		setIsOpen(true)
-		setSelected({})
+	const updateTable = (msg?: string) => {
+		refetch()
+		toast.success(msg || "Successfully")
+		setSelected(null)
 	}
 
 	useEffect(() => {
@@ -85,7 +89,7 @@ const Users = () => {
 						label="Add User"
 						icon={<IoMdAdd className="text-lg" />}
 						className="flex flex-row-reverse gap-1 items-center bg-red-600 text-white rounded-md py-2 2xl:py-2.5"
-						onClick={addNewUserHandler}
+						onClick={() => handleSetUserManageModal()}
 					/>
 				</div>
 
@@ -100,8 +104,9 @@ const Users = () => {
 										<ListRow
 											key={index}
 											user={user}
-											editHandler={editClick}
-											deleteHandler={deleteClick}
+											statusHandler={handleSetUserStatus}
+											editHandler={handleSetUserManageModal}
+											deleteHandler={handleSetOpenDeleteModal}
 										/>
 									))}
 								</tbody>
@@ -112,18 +117,20 @@ const Users = () => {
 
 			</div>
 
-			<AddUser
-				open={isOpen}
-				setOpen={setIsOpen}
+			<AddUserForm
+				open={openEditModal}
+				setOpen={setOpenEditModal}
 				selectedUser={selected}
+				refetchRequest={refetch}
 				key={new Date().getTime().toString()}
 			/>
 
 			<ConfirmationWindow
-				open={openDialog}
-				setOpen={setOpenDialog}
+				open={openDeleteModal}
+				setOpen={setOpenDeleteModal}
 				msg="Do you want to remove this user?"
 				onClick={deleteHandler}
+				param={selected}
 			/>
 
 			<Actions

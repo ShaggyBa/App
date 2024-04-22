@@ -4,7 +4,6 @@ export const updateUserProfile = async (req, res) => {
 	try {
 		const { userId, isAdmin } = req.user;
 		const { _id } = req.body
-
 		const id = isAdmin && userId === _id
 			? userId
 			: isAdmin && userId !== _id
@@ -72,7 +71,7 @@ export const activateUserProfile = async (req, res) => {
 		const user = await User.findById(id)
 
 		if (user) {
-			user.isActive = req.body.isActive || user.isActive
+			user.isActive = req.body.isActive
 
 			await user.save()
 

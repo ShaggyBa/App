@@ -3,7 +3,7 @@ import Button from "components/Button";
 import { getInitials } from "utils/index";
 import { IUserTableInfo } from "types/user.types"
 
-export const ListRow = ({ user, editHandler, deleteHandler }: { user: IUserTableInfo, editHandler: any, deleteHandler: any }) => (
+export const ListRow = ({ user, statusHandler, editHandler, deleteHandler }: { user: IUserTableInfo, statusHandler: any, editHandler: any, deleteHandler: any }) => (
 	<tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-400/10'>
 		<td className='p-2'>
 			<div className='flex items-center gap-3'>
@@ -22,7 +22,7 @@ export const ListRow = ({ user, editHandler, deleteHandler }: { user: IUserTable
 
 		<td className='p-2'>
 			<button
-				// onClick={() => userStatusClick(user)}
+				onClick={() => statusHandler(user)}
 				className={clsx(
 					"w-fit px-4 py-1 rounded-full",
 					user?.isActive ? "bg-red-200" : "bg-yellow-100"

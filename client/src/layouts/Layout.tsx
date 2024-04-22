@@ -1,13 +1,32 @@
 import { Sidebar } from 'components/Sidebar'
-import { useSelector } from 'react-redux';
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Navbar } from "components/Navbar";
 import { MobileSidebar } from "components/MobileSidebar";
+import Cookies from 'js-cookie';
+import { useEffect } from 'react';
+import { useLogoutMutation } from 'state/api/user';
+import { logout } from 'state/features/authSlice'
 
 function Layout() {
 	const { user } = useSelector((state: any) => state.auth);
 
-	// const { testId } = useSelector((state: any) => state.auth)
+	const [logoutToken] = useLogoutMutation()
+
+	const dispatch = useDispatch()
+	const navigate = useNavigate()
+
+	useEffect(() => {
+		const cookieToken = Cookies.get();
+
+		console.log(cookieToken)
+		// if (!cookieToken) {
+		// 	logoutToken()
+		// 	dispatch(logout())
+
+		// 	navigate('/login')
+		// }
+	}, []);
 
 	const location = useLocation()
 

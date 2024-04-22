@@ -17,7 +17,7 @@ export const actionsUserApiSlice = apiSlice.injectEndpoints({
 		}),
 		deleteUser: build.mutation<TUser, string>({
 			query: (userId: string) => ({
-				url: `${API_URL}/logout/${userId}`,
+				url: `${API_URL}/status/${userId}`,
 				method: "DELETE",
 				credentials: "include"
 			})
@@ -29,11 +29,11 @@ export const actionsUserApiSlice = apiSlice.injectEndpoints({
 				credentials: "include"
 			})
 		}),
-		setUserStatus: build.mutation<TUser, { userId: string, status: string }>({
-			query: ({ userId, status }) => ({
+		setUserStatus: build.mutation<TUser, { userId: string, isActive: string }>({
+			query: ({ userId, isActive }) => ({
 				url: `${API_URL}/status/${userId}`,
 				method: "PUT",
-				body: { status },
+				body: { isActive },
 				credentials: "include"
 			})
 		})

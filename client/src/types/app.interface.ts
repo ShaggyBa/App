@@ -8,6 +8,7 @@ export type TUser = {
 	name: string
 	email: string
 	password: string
+	isActive?: boolean
 	projects: string[]
 	profileImage: string
 	country: string

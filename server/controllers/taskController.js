@@ -66,7 +66,7 @@ export const duplicateTask = async (req, res) => {
 		await newTask.save();
 
 		//alert users of the task
-		let text = "New task has been assigned to you";
+		let text = "New task has been assigned to you. ";
 		if (task.team.length > 1) {
 			text = text + ` and ${task.team.length - 1} others.`;
 		}
@@ -137,7 +137,7 @@ export const dashboardStatistics = async (req, res) => {
 				.sort({ _id: -1 });
 
 		const users = await User.find({ isActive: true })
-			.select("name title role isAdmin createdAt")
+			.select("name title role isActive isAdmin createdAt")
 			.limit(10)
 			.sort({ _id: -1 });
 
@@ -175,9 +175,8 @@ export const dashboardStatistics = async (req, res) => {
 			tasks: groupTasks,
 			graphData: groupData,
 		};
-
 		res.status(200).json({
-			status: true, message: "Successfully", ...summary,
+			status: true, message: "Successfully", body: { ...summary },
 		});
 	} catch (error) {
 
@@ -188,7 +187,6 @@ export const dashboardStatistics = async (req, res) => {
 export const getTasks = async (req, res) => {
 	try {
 		const { stage, isTrashed } = req.query;
-
 		let query = { isTrashed: isTrashed ? true : false };
 
 		if (stage) {

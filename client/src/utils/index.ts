@@ -11,7 +11,7 @@ export const formatDate = (date: Date) => {
 	return formattedDate;
 };
 
-export function dateFormatter(dateString: string) {
+export function dateFormatter(dateString: string | date) {
 	const inputDate: Date = new Date(dateString);
 
 	if (!(inputDate)) {
@@ -27,7 +27,9 @@ export function dateFormatter(dateString: string) {
 }
 
 export function getInitials(fullName: string) {
-	const names = fullName.split(" ");
+	const names = fullName.trim().split(" ");
+
+	if (names.length === 1) return names[0][0].toUpperCase();
 
 	const initials = names.slice(0, 2).map((name) => name[0].toUpperCase());
 

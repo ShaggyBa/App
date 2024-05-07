@@ -8,6 +8,11 @@ import { SelectList } from "./SelectList"
 import Button from "components/Button"
 import { BiImages } from "react-icons/bi"
 import { ITask } from "types/task.types"
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"
+import { app } from "utils/firebase"
+import { useCreateTaskMutation, useUpdateTaskMutation } from "state/api/tasks"
+import { toast } from "sonner"
+import { dateFormatter } from "utils/index"
 
 
 const LISTS: string[] = ["TODO", "IN PROGRESS", "COMPLETED"];
@@ -16,10 +21,18 @@ const PRIORITY: string[] = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
 const uploadedFileURLs: string[] = [];
 
 
-export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, task?: ITask }) => {
+export const AddTask = ({ onSubmit, open, setOpen, task }: { onSubmit?: any, open: boolean, setOpen: any, task?: ITask | undefined }) => {
 
+	const defaultValues = {
+		title: task?.title || "",
+		team: task?.team || [],
+		date: dateFormatter(task?.date || new Date()),
+		stage: task?.stage?.toUpperCase() || LISTS[0],
+		priority: task?.priority?.toUpperCase() || PRIORITY[2],
+		assets: [],
+	}
 
-	const { register, handleSubmit, formState: { errors } } = useForm()
+	const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues })
 
 	const [team, setTeam] = useState(task?.team || [])
 
@@ -31,12 +44,83 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 	const [uploading, setUploading] = useState(false)
 
-	const submitHandler = () => { }
+	const [createTask, { isLoading }] = useCreateTaskMutation()
+	const [updateTask, { isLoading: updateLoading }] = useUpdateTaskMutation()
+	const URLS = task?.assets ? [...task?.assets] : []
+
+	const submitHandler = async (data: any) => {
+		for (const file of assets) {
+			setUploading(true)
+			try {
+				await uploadFile(file);
+			}
+			catch (err) {
+				console.log("Error uploading file", err)
+			}
+			finally {
+				setUploading(false)
+			}
+		}
+
+		try {
+			const newData = {
+				...data,
+				title: data.title ? data.title : task?.title,
+				date: data.date ? data.date : task?.date,
+				assets: [...URLS, ...uploadedFileURLs],
+				team,
+				stage,
+				priority
+			}
+
+			const res = task?._id ? await updateTask({ newData, id: task?._id }).unwrap() : await createTask(newData).unwrap();
+
+			if (onSubmit)
+				onSubmit()
+			else
+				window.location.reload()
+
+			toast.success(`${task?._id ? "Task Updated: " + res.message : "Task Created: " + res.message}`)
+
+			setTimeout(() => {
+				setOpen(false)
+			}, 500)
+		}
+		catch (err) {
+
+		}
+	}
 
 	const handleSelect = (e: ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
 		setAssets(files ? Array.from(files) : []);
 	};
+
+	const uploadFile = async (file: any) => {
+		const storage = getStorage(app);
+
+		const name = new Date().getTime() + file.name;
+		const storageRef = ref(storage, name);
+
+		const uploadTask = uploadBytesResumable(storageRef, file);
+
+		return new Promise((resolve, reject) => {
+			uploadTask.on("state_changed", (snapshot) => {
+				console.log("Upload is " + (snapshot.bytesTransferred / snapshot.totalBytes) * 100 + "% done");
+			}, (error) => {
+				reject(error);
+			}, () => {
+				getDownloadURL(uploadTask.snapshot.ref)
+					.then((downloadURL) => {
+						uploadedFileURLs.push(downloadURL);
+						resolve(downloadURL);
+					})
+					.catch((error) => {
+						reject(error)
+					})
+			})
+		})
+	}
 
 	return <ModalWrapper open={open} setOpen={setOpen}>
 		<form onSubmit={handleSubmit(submitHandler)}>
@@ -49,12 +133,12 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 			<div className="mt-2 flex flex-col gap-6">
 				<Textbox
-					placeholder="Task title"
+					placeholder={task?.title}
 					type="text"
 					name="title"
 					label="Task title"
 					className="w-full rounded"
-					register={register("title", { required: "Title is required" })}
+					register={register("title", { required: task ? false : "Title is required" })}
 					error={errors.title ? errors.title.message : ""}
 				/>
 
@@ -73,12 +157,11 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 					<div className="w-full">
 						<Textbox
-							placeholder="Date"
 							type="date"
 							name="date"
 							label="Task date"
 							className="w-full rounded"
-							register={register("date", { required: "Date is required" })}
+							register={register("date", { required: task ? false : "Date is required" })}
 							error={errors.date ? errors.date.message : ""}
 						/>
 					</div>

@@ -10,17 +10,54 @@ import { ITask } from "types/task.types";
 import { AddSubTask } from "../Task/AddSubTask";
 import { AddTask } from "../Task/AddTask";
 import { ConfirmationWindow } from "./ConfirmationWindow";
+import { toast } from "sonner";
+import { useTrashTaskMutation, useDuplicateTaskMutation } from "state/api/tasks";
 
 export const TaskSettingsBar = ({ task }: { task: ITask }) => {
+
 	const [open, setOpen] = useState(false);
 	const [openEdit, setOpenEdit] = useState(false);
 	const [openDialog, setOpenDialog] = useState(false);
 
 	const navigate = useNavigate();
 
-	const duplicateHandler = () => { };
-	const deleteClicks = () => { };
-	const deleteHandler = () => { };
+	const [trashTask] = useTrashTaskMutation()
+	const [duplicateTask] = useDuplicateTaskMutation()
+
+	const openDeleteDialog = () => {
+		setOpenDialog(true)
+	}
+
+	const duplicateHandler = async () => {
+		try {
+			const res = await duplicateTask(task?._id)
+			toast.success("Task duplicated " + res)
+
+			setTimeout(() => {
+				setOpenDialog(false)
+				window.location.reload()
+			}, 500)
+		}
+		catch (err) {
+			toast.error("Something went wrong: " + err)
+		}
+	}
+
+	const trashTaskHandler = async () => {
+		try {
+			const res = await trashTask(task?._id).unwrap()
+
+			toast.success("Task moved to trash " + res?.message)
+
+			setTimeout(() => {
+				setOpenDialog(false)
+				window.location.reload()
+			}, 500)
+		}
+		catch (err) {
+			toast.error("Something went wrong: " + err)
+		}
+	}
 
 	const items = [
 		{
@@ -84,7 +121,7 @@ export const TaskSettingsBar = ({ task }: { task: ITask }) => {
 								<Menu.Item>
 									{({ active }) => (
 										<button
-											onClick={() => deleteClicks()}
+											onClick={() => openDeleteDialog()}
 											className={`${active ? "bg-red-500 text-white" : "text-red-900"
 												} group flex w-full items-center rounded-md px-2 py-2 text-sm`}
 										>
@@ -109,12 +146,12 @@ export const TaskSettingsBar = ({ task }: { task: ITask }) => {
 				key={new Date().getTime()}
 			/>
 
-			<AddSubTask open={open} setOpen={setOpen} />
+			<AddSubTask open={open} setOpen={setOpen} id={task._id} />
 
 			<ConfirmationWindow
 				open={openDialog}
 				setOpen={setOpenDialog}
-				onClick={deleteHandler}
+				onClick={trashTaskHandler}
 			/>
 		</>
 	);

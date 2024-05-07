@@ -1,6 +1,5 @@
 import React from "react";
 import clsx from "clsx";
-import { FieldError } from "react-hook-form";
 
 
 type Props = {

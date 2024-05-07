@@ -120,7 +120,7 @@ const Users = () => {
 			<AddUserForm
 				open={openEditModal}
 				setOpen={setOpenEditModal}
-				selectedUser={selected}
+				selectedUser={selected || undefined}
 				refetchRequest={refetch}
 				key={new Date().getTime().toString()}
 			/>

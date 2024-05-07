@@ -2,16 +2,17 @@ import Button from "components/Button"
 import { Loader } from "components/Loader"
 import { Tabs } from "components/Tabs"
 import { Title } from "components/Title"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FaList } from "react-icons/fa"
 import { IoMdAdd } from "react-icons/io"
 import { MdGridView } from "react-icons/md"
 import { useParams } from "react-router-dom"
 import { TaskTitle } from "components/Task/TaskTitle"
 import { BoardView } from "components/TasksRenderVariants/BoardView"
-import { tasks } from "data/data"
 import { ListView } from "components/TasksRenderVariants/ListView/ListView"
 import { AddTask } from "components/Task/AddTask"
+import { useGetAllTasksQuery } from "state/api/tasks"
+import { ITask } from "types/task.types"
 
 type TTabs = {
 	title: string,
@@ -38,13 +39,18 @@ const Tasks = () => {
 
 	const params = useParams()
 
-	const [selected, setSelected] = useState(0)
+	const [selected, setSelected] = useState({})
+
+	const [selectedTask, setSelectedTask] = useState<ITask>({} as ITask)
+
 
 	const [open, setOpen] = useState(false)
 
-	const [loading, setLoading] = useState(false)
+	const [tasks, setTasks] = useState<ITask[]>([])
 
 	const status = params?.status || ""
+
+	const { data, isLoading, refetch } = useGetAllTasksQuery({ strQuery: status, isTrashed: "", search: "" })
 
 	const filterTasks = (status: string) => {
 		if (status) {
@@ -54,7 +60,17 @@ const Tasks = () => {
 
 	const currentTasks = status ? filterTasks(status) : tasks
 
-	return loading
+	useEffect(() => {
+		if (data) {
+			setTasks(data.tasks)
+		}
+	}, [data])
+
+	const onAddTask = () => {
+		refetch()
+	}
+
+	return isLoading
 		? <div className="py-10"><Loader /></div>
 		: <div className="w-full">
 			<div className="flex items-center justify-between mb-4">
@@ -98,14 +114,17 @@ const Tasks = () => {
 					}
 
 					{
-						selected !== 1 ? <BoardView tasks={currentTasks || tasks} /> : <ListView tasks={currentTasks || tasks} />
+						selected !== 1
+							? <BoardView tasks={currentTasks || tasks} setSelected={setSelectedTask} />
+							: <ListView tasks={currentTasks || tasks} setSelected={setSelectedTask} />
 					}
 				</Tabs>
 
-				<AddTask open={open} setOpen={setOpen} />
+				<AddTask onSubmit={onAddTask} open={open} setOpen={setOpen} task={selectedTask || undefined} />
 			</div>
 
 		</div>
 }
 
 export default Tasks
+

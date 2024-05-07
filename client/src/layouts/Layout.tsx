@@ -5,28 +5,34 @@ import { Navbar } from "components/Navbar";
 import { MobileSidebar } from "components/MobileSidebar";
 import Cookies from 'js-cookie';
 import { useEffect } from 'react';
-import { useLogoutMutation } from 'state/api/user';
 import { logout } from 'state/features/authSlice'
 
 function Layout() {
 	const { user } = useSelector((state: any) => state.auth);
 
-	const [logoutToken] = useLogoutMutation()
 
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 
-	useEffect(() => {
-		const cookieToken = Cookies.get();
 
-		console.log(cookieToken)
-		// if (!cookieToken) {
-		// 	logoutToken()
-		// 	dispatch(logout())
+	// if (!Cookies.get("token") && localStorage.getItem("userInfo")) {
+	// 	dispatch(logout())
 
-		// 	navigate('/login')
-		// }
-	}, []);
+	// 	navigate('/login')
+	// }
+
+
+	// useEffect(() => {
+	// 	const cookieToken = Cookies.get();
+
+
+	// 	if (!cookieToken) {
+	// 		logoutToken()
+	// 		dispatch(logout())
+
+	// 		navigate('/login')
+	// 	}
+	// }, []);
 
 	const location = useLocation()
 

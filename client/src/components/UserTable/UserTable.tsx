@@ -8,7 +8,7 @@ export const UserTable = ({ users }: { users: IUserTableInfo[] }) => {
 			<UserTableHeader />
 			<tbody>
 				{
-					users.map((user, index: number) => <UserTableRow user={user} key={index} />)
+					users?.map((user, index: number) => <UserTableRow user={user} key={index} />)
 				}
 			</tbody>
 		</table>

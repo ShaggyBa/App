@@ -12,7 +12,7 @@ import { setCredentials } from "state/features/authSlice";
 import { TUser } from "types/app.interface";
 
 export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { open: boolean, setOpen: (open: boolean) => void, selectedUser?: TUser, refetchRequest?: any }) => {
-	let defaultValues = selectedUser ? { ...selectedUser } : {
+	const defaultValues: TUser | {} = selectedUser ? { ...selectedUser } : {
 		name: "",
 		title: "",
 		email: "",
@@ -39,13 +39,14 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 		try {
 			if (!selectedUser) {
 				await addNewUser(data).unwrap()
-				await refetchRequest()
+				if (refetchRequest)
+					await refetchRequest()
 				toast.success("User added successfully")
 			}
 			else {
 				const res = await updateUser({ ...data }).unwrap()
-				console.log(res)
-				await refetchRequest()
+				if (refetchRequest)
+					await refetchRequest()
 				toast.success("User updated successfully")
 
 				if (user?._id === selectedUser?._id) {

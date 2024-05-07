@@ -9,6 +9,7 @@ export type TUser = {
 	email: string
 	password: string
 	isActive?: boolean
+	isAdmin?: boolean
 	projects: string[]
 	profileImage: string
 	country: string

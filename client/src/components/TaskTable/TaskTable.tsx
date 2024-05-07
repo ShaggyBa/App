@@ -9,7 +9,7 @@ export const TaskTable = ({ tasks }: { tasks: ITask[] }) => {
 			<TableHeader />
 			<tbody>
 				{
-					tasks.map((task, index: number) => {
+					tasks?.map((task, index: number) => {
 						return <TableRow
 							key={index}
 							task={task}

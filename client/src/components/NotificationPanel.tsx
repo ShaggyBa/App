@@ -1,10 +1,12 @@
 import { Popover, Transition } from "@headlessui/react";
 import moment from "moment";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { BiSolidMessageRounded } from "react-icons/bi";
 import { HiBellAlert } from "react-icons/hi2";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { Link } from "react-router-dom";
+import { useGetNotificationsQuery, useMarkNotificationReadMutation } from "state/api/notification";
+import { ViewNotification } from "./ViewNotification";
 
 
 type TIcon = {
@@ -37,48 +39,65 @@ interface IData {
 	__v: number;
 }
 
-const data: IData[] = [
-	{
-		_id: "65c5bbf3787832cf99f28e6d",
-		team: [
-			"65c202d4aa62f32ffd1303cc",
-			"65c27a0e18c0a1b750ad5cad",
-			"65c30b96e639681a13def0b5",
-		],
-		text: "New task has been assigned to you and 2 others. The task priority is set a normal priority, so check and act accordingly. The task date is Thu Feb 29 2024. Thank you!!!",
-		task: null,
-		notiType: "alert",
-		isRead: [],
-		createdAt: "2024-02-09T05:45:23.353Z",
-		updatedAt: "2024-02-09T05:45:23.353Z",
-		__v: 0,
-	},
-	{
-		_id: "65c5f12ab5204a81bde866ab",
-		team: [
-			"65c202d4aa62f32ffd1303cc",
-			"65c30b96e639681a13def0b5",
-			"65c317360fd860f958baa08e",
-		],
-		text: "New task has been assigned to you and 2 others. The task priority is set a high priority, so check and act accordingly. The task date is Fri Feb 09 2024. Thank you!!!",
-		task: {
-			_id: "65c5f12ab5204a81bde866a9",
-			title: "Test task",
-		},
-		notiType: "alert",
-		isRead: [],
-		createdAt: "2024-02-09T09:32:26.810Z",
-		updatedAt: "2024-02-09T09:32:26.810Z",
-		__v: 0,
-	},
-];
+// const data: IData[] = [
+// 	{
+// 		_id: "65c5bbf3787832cf99f28e6d",
+// 		team: [
+// 			"65c202d4aa62f32ffd1303cc",
+// 			"65c27a0e18c0a1b750ad5cad",
+// 			"65c30b96e639681a13def0b5",
+// 		],
+// 		text: "New task has been assigned to you and 2 others. The task priority is set a normal priority, so check and act accordingly. The task date is Thu Feb 29 2024. Thank you!!!",
+// 		task: null,
+// 		notiType: "alert",
+// 		isRead: [],
+// 		createdAt: "2024-02-09T05:45:23.353Z",
+// 		updatedAt: "2024-02-09T05:45:23.353Z",
+// 		__v: 0,
+// 	},
+// 	{
+// 		_id: "65c5f12ab5204a81bde866ab",
+// 		team: [
+// 			"65c202d4aa62f32ffd1303cc",
+// 			"65c30b96e639681a13def0b5",
+// 			"65c317360fd860f958baa08e",
+// 		],
+// 		text: "New task has been assigned to you and 2 others. The task priority is set a high priority, so check and act accordingly. The task date is Fri Feb 09 2024. Thank you!!!",
+// 		task: {
+// 			_id: "65c5f12ab5204a81bde866a9",
+// 			title: "Test task",
+// 		},
+// 		notiType: "alert",
+// 		isRead: [],
+// 		createdAt: "2024-02-09T09:32:26.810Z",
+// 		updatedAt: "2024-02-09T09:32:26.810Z",
+// 		__v: 0,
+// 	},
+// ];
 
 export const NotificationPanel = () => {
 	const [open, setOpen] = useState(false);
 	const [selected, setSelected] = useState(null);
 
-	const readHandler = (param1: string, param2: string) => { };
-	const viewHandler = (item: IData) => { };
+	const [notifications, setNotifications] = useState([])
+
+	const { data, refetch } = useGetNotificationsQuery();
+
+	const [markRead] = useMarkNotificationReadMutation();
+
+	const viewHandler = async (el: any) => {
+		setSelected(el);
+		readHandler("one", el._id);
+		setOpen(true);
+	};
+
+
+	const readHandler = async (type: string, id?: string,) => {
+
+		await markRead({ id, type }).unwrap();
+
+		refetch()
+	};
 
 	const callsToAction = [
 		{ name: "Cancel", href: "#", icon: "" },
@@ -90,15 +109,22 @@ export const NotificationPanel = () => {
 		},
 	]
 
+	useEffect(() => {
+		if (data) {
+			setNotifications(data)
+		}
+	}, [data])
+
+
 	return (
 		<>
 			<Popover className='relative'>
 				<Popover.Button className='inline-flex items-center outline-none'>
 					<div className='w-8 h-8 flex items-center justify-center text-gray-800 relative'>
 						<IoIosNotificationsOutline size={35} />
-						{data?.length > 0 && (
+						{notifications?.length > 0 && (
 							<span className='absolute text-center top-0 right-1 text-[12px] text-white font-semibold w-4 h-4 rounded-full bg-red-600'>
-								{data?.length}
+								{notifications?.length}
 							</span>
 						)}
 					</div>
@@ -114,12 +140,12 @@ export const NotificationPanel = () => {
 					leaveTo='opacity-0 translate-y-1'
 				>
 					<Popover.Panel className='absolute -right-16 md:-right-2 z-10 mt-5 flex w-screen max-w-max  px-4'>
-						{data?.length > 0 ?
+						{notifications?.length > 0 ?
 							(): JSX.Element =>
 							(
 								<div className='w-screen max-w-md flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1 ring-gray-900/5'>
 									<div className='p-4'>
-										{data?.slice(0, 5).map((item, index) => (
+										{notifications?.slice(0, 5).map((item, index) => (
 											<div
 												key={item._id + index}
 												className='group relative flex gap-x-4 rounded-lg p-4 hover:bg-gray-50'
@@ -167,6 +193,8 @@ export const NotificationPanel = () => {
 					</Popover.Panel>
 				</Transition>
 			</Popover>
+
+			<ViewNotification open={open} setOpen={setOpen} el={selected} />
 		</>
 	);
 };

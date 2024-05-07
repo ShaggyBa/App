@@ -10,7 +10,7 @@ import {
 	YAxis
 } from "recharts"
 
-export const Chart = () => {
+export const Chart = ({ data }: any) => {
 	return <>
 		<ResponsiveContainer
 			width={"100%"}
@@ -19,7 +19,7 @@ export const Chart = () => {
 			<BarChart
 				width={150}
 				height={40}
-				data={chartData}
+				data={data ? data : chartData}
 			>
 				<XAxis dataKey={"name"} />
 				<YAxis dataKey={"total"} />

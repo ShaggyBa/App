@@ -3,6 +3,8 @@ import { Dialog } from "@headlessui/react";
 import Button from "components/Button";
 import { ModalWrapper } from "components/ModalWrapper";
 import { Textbox } from "components/TextBox";
+import { useCreateSubTaskMutation } from "state/api/tasks";
+import { toast } from "sonner";
 
 export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any, id?: string }) => {
 	const {
@@ -11,19 +13,19 @@ export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any,
 		formState: { errors },
 	} = useForm();
 
-	// const [addSbTask] = useCreateSubTaskMutation();
+	const [addSubTask] = useCreateSubTaskMutation();
 
 	const handleOnSubmit = async (data: any) => {
-		// try {
-		//   const res = await addSbTask({ data, id }).unwrap();
-		//   toast.success(res.message);
-		//   setTimeout(() => {
-		//     setOpen(false);
-		//   }, 500);
-		// } catch (err) {
-		//   console.log(err);
-		//   toast.error(err?.data?.message || err.error);
-		// }
+		try {
+			const res = await addSubTask({ data, id }).unwrap();
+			toast.success(res.message);
+			setTimeout(() => {
+				window.location.reload();
+				setOpen(false);
+			}, 500);
+		} catch (err) {
+			toast.error("Something went wrong: " + err);
+		}
 	};
 
 	return (

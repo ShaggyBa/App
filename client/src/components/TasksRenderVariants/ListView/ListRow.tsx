@@ -18,9 +18,8 @@ const ICONS: { [key: string]: JSX.Element } = {
 
 export const ListRow = ({ task, setSelected, setOpenDialog }: { task: ITask, setSelected: any, setOpenDialog: any }) => {
 
-	const deleteClicks = (id: string) => {
+	const setTasksAction = (id: string) => {
 		setSelected(id)
-		console.log(id)
 		setOpenDialog(true)
 	}
 
@@ -91,13 +90,14 @@ export const ListRow = ({ task, setSelected, setOpenDialog }: { task: ITask, set
 				className='text-red-600 hover:text-red-500 sm:px-0 text-sm md:text-base'
 				label='Edit'
 				type='button'
+				onClick={() => setTasksAction(task._id)}
 			/>
 
 			<Button
 				className='text-purple-700 hover:text-purple-500 sm:px-0 text-sm md:text-base'
 				label='Delete'
 				type='button'
-				onClick={() => deleteClicks(task._id)}
+				onClick={() => setTasksAction(task._id)}
 			/>
 		</td>
 	</tr>

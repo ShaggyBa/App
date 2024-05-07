@@ -28,7 +28,7 @@ export const ListRow = ({ user, statusHandler, editHandler, deleteHandler }: { u
 					user?.isActive ? "bg-red-200" : "bg-yellow-100"
 				)}
 			>
-				{user?.isActive ? "Active" : "Disabled"}
+				{user?.isActive ? "Active" : "Inactive"}
 			</button>
 		</td>
 

@@ -5,10 +5,9 @@ import { ListRow } from "./ListRow";
 import { ConfirmationWindow } from "components/TaskSettings/ConfirmationWindow";
 
 
-export const ListView = ({ tasks }: { tasks: ITask[] }) => {
+export const ListView = ({ tasks, setSelected }: { tasks: ITask[], setSelected: any }) => {
 
 	const [openDialog, setOpenDialog] = useState(false)
-	const [selected, setSelected] = useState("")
 
 	const deleteHandler = () => { }
 

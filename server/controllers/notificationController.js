@@ -1,12 +1,12 @@
 import Notification from "../models/Notification.js"
 export const getNotificationsList = async (req, res) => {
 	try {
-		const { userId } = req.user
+		const { id } = req.params
 
-		const notification = await Notification.findOne(
+		const notification = await Notification.find(
 			{
-				team: userId,
-				isRead: { $nin: [userId] }
+				team: id,
+				isRead: { $nin: [id] }
 			}
 		).populate("task", "title")
 

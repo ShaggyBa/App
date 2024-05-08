@@ -13,7 +13,7 @@ router.post("/login", loginUser)
 router.post("/logout", logoutUser)
 
 router.get("/get-team", protectRoute, getTeamList);
-router.get("/notifications", protectRoute, getNotificationsList);
+router.get("/notifications/:id", protectRoute, getNotificationsList);
 
 router.put("/profile", protectRoute, updateUserProfile);
 router.put("/read-noti", protectRoute, markNotificationRead);

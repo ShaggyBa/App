@@ -18,6 +18,7 @@ const notificationSchema = new mongoose.Schema(
 			default: "alert",
 			enum: ['alert', 'message']
 		},
+		notiType: { type: String, default: "alert", enum: ["alert", "message"] },
 		isRead: [{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User'

@@ -1,15 +1,15 @@
-import { useState } from "react";
 import { ITask } from "types/task.types";
 import { ListHead } from "./ListHeader";
 import { ListRow } from "./ListRow";
-import { ConfirmationWindow } from "components/TaskSettings/ConfirmationWindow";
 
+type Props = {
+	tasks: ITask[],
+	setOpenEdit: any,
+	setSelectedTask: React.Dispatch<React.SetStateAction<ITask | undefined>>,
+	setOpenDialog: any,
+}
 
-export const ListView = ({ tasks, setSelected }: { tasks: ITask[], setSelected: any }) => {
-
-	const [openDialog, setOpenDialog] = useState(false)
-
-	const deleteHandler = () => { }
+export const ListView = ({ tasks, setOpenEdit, setSelectedTask, setOpenDialog }: Props) => {
 
 	return <>
 		<div className="bg-white px-2 md:px-4 pt-4 pb-9 shadow-md rounded">
@@ -19,7 +19,8 @@ export const ListView = ({ tasks, setSelected }: { tasks: ITask[], setSelected: 
 					<tbody>
 						{tasks.map((task, index: number) => (
 							<ListRow
-								setSelected={setSelected}
+								setSelectedTask={setSelectedTask}
+								setOpenEdit={setOpenEdit}
 								setOpenDialog={setOpenDialog}
 								key={index}
 								task={task}
@@ -30,12 +31,5 @@ export const ListView = ({ tasks, setSelected }: { tasks: ITask[], setSelected: 
 				</table>
 			</div>
 		</div>
-
-		<ConfirmationWindow
-			open={openDialog}
-			setOpen={setOpenDialog}
-			onClick={deleteHandler}
-		/>
-
 	</>
 }

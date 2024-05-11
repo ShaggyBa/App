@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { AiTwotoneFolderOpen } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
@@ -7,57 +7,19 @@ import { MdAdd, MdOutlineEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { Menu, Transition } from "@headlessui/react";
 import { ITask } from "types/task.types";
-import { AddSubTask } from "../Task/AddSubTask";
-import { AddTask } from "../Task/AddTask";
-import { ConfirmationWindow } from "./ConfirmationWindow";
-import { toast } from "sonner";
-import { useTrashTaskMutation, useDuplicateTaskMutation } from "state/api/tasks";
 
-export const TaskSettingsBar = ({ task }: { task: ITask }) => {
+type Props = {
+	task: ITask
+	setSelectedTask: any
+	setOpenSubTask: any
+	setOpenEdit: any
+	openDeleteDialog: any
+	duplicateHandler: any
+}
 
-	const [open, setOpen] = useState(false);
-	const [openEdit, setOpenEdit] = useState(false);
-	const [openDialog, setOpenDialog] = useState(false);
+export const TaskSettingsBar = ({ task, setSelectedTask, setOpenSubTask, setOpenEdit, openDeleteDialog, duplicateHandler }: Props) => {
 
 	const navigate = useNavigate();
-
-	const [trashTask] = useTrashTaskMutation()
-	const [duplicateTask] = useDuplicateTaskMutation()
-
-	const openDeleteDialog = () => {
-		setOpenDialog(true)
-	}
-
-	const duplicateHandler = async () => {
-		try {
-			const res = await duplicateTask(task?._id)
-			toast.success("Task duplicated " + res)
-
-			setTimeout(() => {
-				setOpenDialog(false)
-				window.location.reload()
-			}, 500)
-		}
-		catch (err) {
-			toast.error("Something went wrong: " + err)
-		}
-	}
-
-	const trashTaskHandler = async () => {
-		try {
-			const res = await trashTask(task?._id).unwrap()
-
-			toast.success("Task moved to trash " + res?.message)
-
-			setTimeout(() => {
-				setOpenDialog(false)
-				window.location.reload()
-			}, 500)
-		}
-		catch (err) {
-			toast.error("Something went wrong: " + err)
-		}
-	}
 
 	const items = [
 		{
@@ -73,7 +35,7 @@ export const TaskSettingsBar = ({ task }: { task: ITask }) => {
 		{
 			label: "Add Sub-Task",
 			icon: <MdAdd className='mr-2 h-5 w-5' aria-hidden='true' />,
-			onClick: () => setOpen(true),
+			onClick: () => setOpenSubTask(true),
 		},
 		{
 			label: "Duplicate",
@@ -86,7 +48,8 @@ export const TaskSettingsBar = ({ task }: { task: ITask }) => {
 		<>
 			<div>
 				<Menu as='div' className='relative inline-block text-left'>
-					<Menu.Button className='inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium text-gray-600 '>
+					<Menu.Button className='inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium text-gray-600 '
+						onClick={() => setSelectedTask(task)}>
 						<BsThreeDots />
 					</Menu.Button>
 
@@ -138,21 +101,6 @@ export const TaskSettingsBar = ({ task }: { task: ITask }) => {
 					</Transition>
 				</Menu>
 			</div>
-
-			<AddTask
-				open={openEdit}
-				setOpen={setOpenEdit}
-				task={task}
-				key={new Date().getTime()}
-			/>
-
-			<AddSubTask open={open} setOpen={setOpen} id={task._id} />
-
-			<ConfirmationWindow
-				open={openDialog}
-				setOpen={setOpenDialog}
-				onClick={trashTaskHandler}
-			/>
 		</>
 	);
 };

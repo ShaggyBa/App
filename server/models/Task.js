@@ -31,7 +31,7 @@ const taskSchema = new mongoose.Schema({
 		enum: ["todo", "in progress", "completed"],
 		default: "todo"
 	},
-	activities: {
+	activities: [{
 		type: {
 			type: String,
 			default: "assigned",
@@ -53,7 +53,7 @@ const taskSchema = new mongoose.Schema({
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User'
 		}
-	},
+	}],
 	subTasks: [
 		{
 			title: String,

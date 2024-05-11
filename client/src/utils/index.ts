@@ -45,7 +45,7 @@ export const PRIORITY_STYLES: TPriority = {
 };
 
 export const TASK_TYPE: TStage = {
-	todo: "bg-blue-600",
+	todo: "bg-red-600",
 	"in progress": "bg-yellow-600",
 	completed: "bg-green-600",
 };

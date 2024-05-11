@@ -5,6 +5,8 @@ export const registerUser = async (req, res) => {
 	try {
 		const { name, email, password, isAdmin, role, title } = req.body
 
+		console.log(req.body)
+
 		const userExist = await User.findOne({ email })
 
 		if (userExist) {

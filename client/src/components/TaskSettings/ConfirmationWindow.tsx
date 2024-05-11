@@ -56,7 +56,7 @@ export const ConfirmationWindow = (
 					</Dialog.Title>
 
 					<p className='text-center text-gray-500'>
-						{msg ?? "Are you sure you want to delete the selected record?"}
+						{msg ?? `Are you sure you want to ${type === "restore" ? "restore" : "delete"} the selected record?`}
 					</p>
 
 					<div className='bg-gray-50 py-3 sm:flex sm:flex-row-reverse gap-4'>
@@ -69,7 +69,7 @@ export const ConfirmationWindow = (
 									: "bg-red-600 hover:bg-red-500"
 							)}
 							onClick={() => onClickHandler()}
-							label={type === "restore" ? "Restore" : "Delete"}
+							label={(type === "restore" || type === "restoreAll") ? "Restore" : "Delete"}
 						/>
 
 						<Button

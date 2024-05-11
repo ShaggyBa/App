@@ -16,11 +16,17 @@ const ICONS: { [key: string]: JSX.Element } = {
 
 
 
-export const ListRow = ({ task, setSelected, setOpenDialog }: { task: ITask, setSelected: any, setOpenDialog: any }) => {
+export const ListRow = ({ task, setOpenDialog, setSelectedTask, setOpenEdit }: { task: ITask, setOpenDialog: any, setSelectedTask: any, setOpenEdit: any }) => {
 
-	const setTasksAction = (id: string) => {
-		setSelected(id)
+
+	const onHandleOpenDialog = (task: ITask) => {
+		setSelectedTask(task)
 		setOpenDialog(true)
+	}
+
+	const onHandleOpenEdit = (task: ITask) => {
+		setSelectedTask(task)
+		setOpenEdit(true)
 	}
 
 	return <tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-300/10'>
@@ -90,14 +96,14 @@ export const ListRow = ({ task, setSelected, setOpenDialog }: { task: ITask, set
 				className='text-red-600 hover:text-red-500 sm:px-0 text-sm md:text-base'
 				label='Edit'
 				type='button'
-				onClick={() => setTasksAction(task._id)}
+				onClick={() => onHandleOpenEdit(task)}
 			/>
 
 			<Button
 				className='text-purple-700 hover:text-purple-500 sm:px-0 text-sm md:text-base'
 				label='Delete'
 				type='button'
-				onClick={() => setTasksAction(task._id)}
+				onClick={() => onHandleOpenDialog(task)}
 			/>
 		</td>
 	</tr>

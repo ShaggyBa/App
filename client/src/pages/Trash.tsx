@@ -1,16 +1,18 @@
 import clsx from "clsx";
 import Button from "components/Button";
+import { Loader } from "components/Loader";
 import { ConfirmationWindow } from "components/TaskSettings/ConfirmationWindow";
 import { Title } from "components/Title";
 import { ListHead } from "components/TrashList/ListHead";
 import { ListRow } from "components/TrashList/ListRow";
 import { AddUserForm } from "components/UsersList/AddUserForm";
-import { tasks } from "data/data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	MdDelete,
 	MdOutlineRestore,
 } from "react-icons/md";
+import { toast } from "sonner";
+import { useDeleteOrRestoreTaskMutation, useGetAllTasksQuery } from "state/api/tasks";
 import { ITask } from "types/task.types";
 import { PRIORITY_STYLES, TASK_TYPE } from "utils/index";
 
@@ -21,6 +23,12 @@ const Trash = () => {
 	const [msg, setMsg] = useState("");
 	const [type, setType] = useState("delete");
 	const [selected, setSelected] = useState("");
+
+	const [tasks, setTasks] = useState<ITask[] | undefined>([] as ITask[]);
+
+	const { data, isLoading, refetch } = useGetAllTasksQuery({ strQuery: "", isTrashed: "true", search: "" })
+
+	const [deleteOrRestoreTask, { isLoading: isDeleting }] = useDeleteOrRestoreTaskMutation();
 
 	const deleteAllClick = () => {
 		setType("deleteAll");
@@ -48,42 +56,83 @@ const Trash = () => {
 		setOpenDialog(true);
 	}
 
-	const deleteRestoreHandler = () => { }
+	const deleteRestoreHandler = async () => {
+		try {
+			let res
+			switch (type) {
+				case "delete":
+					res = await deleteOrRestoreTask({ id: selected, actionType: "delete" }).unwrap()
+					break;
+				case "restore":
+					res = await deleteOrRestoreTask({ id: selected, actionType: "restore" }).unwrap()
+					break;
+				case "deleteAll":
+					res = await deleteOrRestoreTask({ id: "", actionType: "deleteAll" }).unwrap()
+					break;
+				case "restoreAll":
+					res = await deleteOrRestoreTask({ id: "", actionType: "restoreAll" }).unwrap()
+					break;
+
+				default:
+					break;
+			}
+
+			toast.success(type === "delete" ? "Task deleted successfully: " + res?.message : "Task restored successfully: " + res?.message)
+
+			setTimeout(() => {
+				setOpenDialog(false)
+				refetch()
+			}, 500)
+		} catch (err) {
+			toast.error("Something went wrong: " + err)
+		}
+	}
+
+	useEffect(() => {
+		if (data && data.tasks) {
+			setTasks(data.tasks)
+		}
+	}, [data])
+
 
 	return (
-		<>
-			<div className='w-full md:px-1 px-0 mb-6'>
-				<div className='flex items-center justify-between mb-8'>
-					<Title title='Trashed Tasks' />
+		<div>
+			{
+				isLoading
+					? <div className="pt-10"><Loader /></div>
+					: <div className='w-full md:px-1 px-0 mb-6'>
+						<div className='flex items-center justify-between mb-8'>
+							<Title title='Trashed Tasks' />
 
-					<div className='flex gap-2 md:gap-4 items-center'>
-						<Button
-							label='Restore All'
-							icon={<MdOutlineRestore className='text-lg hidden md:flex' />}
-							className='flex flex-row-reverse gap-1 items-center  text-black text-sm md:text-base rounded-md 2xl:py-2.5'
-							onClick={() => restoreAllClick()}
-						/>
-						<Button
-							label='Delete All'
-							icon={<MdDelete className='text-lg hidden md:flex' />}
-							className='flex flex-row-reverse gap-1 items-center  text-red-600 text-sm md:text-base rounded-md 2xl:py-2.5'
-							onClick={() => deleteAllClick()}
-						/>
+							<div className='flex gap-2 md:gap-4 items-center'>
+								<Button
+									label='Restore All'
+									icon={<MdOutlineRestore className='text-lg hidden md:flex' />}
+									className='flex flex-row-reverse gap-1 items-center  text-black text-sm md:text-base rounded-md 2xl:py-2.5'
+									onClick={() => restoreAllClick()}
+								/>
+								<Button
+									label='Delete All'
+									icon={<MdDelete className='text-lg hidden md:flex' />}
+									className='flex flex-row-reverse gap-1 items-center  text-red-600 text-sm md:text-base rounded-md 2xl:py-2.5'
+									onClick={() => deleteAllClick()}
+								/>
+							</div>
+						</div>
+						<div className='bg-white px-2 md:px-6 py-4 shadow-md rounded'>
+							<div className='overflow-x-auto'>
+								<table className='w-full mb-5'>
+									<ListHead />
+									<tbody>
+										{tasks?.map((tk, id) => (
+											<ListRow key={id} item={tk} deleteHandler={deleteClick} restoreHandler={restoreClick} />
+										))}
+									</tbody>
+								</table>
+							</div>
+						</div>
 					</div>
-				</div>
-				<div className='bg-white px-2 md:px-6 py-4 shadow-md rounded'>
-					<div className='overflow-x-auto'>
-						<table className='w-full mb-5'>
-							<ListHead />
-							<tbody>
-								{tasks?.map((tk, id) => (
-									<ListRow key={id} item={tk} deleteHandler={deleteClick} restoreHandler={restoreClick} />
-								))}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
+			}
 
 			<AddUserForm open={open} setOpen={setOpen} />
 
@@ -96,7 +145,7 @@ const Trash = () => {
 				setType={setType}
 				onClick={() => deleteRestoreHandler()}
 			/>
-		</>
+		</div>
 	);
 };
 

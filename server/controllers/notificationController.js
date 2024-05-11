@@ -37,10 +37,16 @@ export const markNotificationRead = async (req, res) => {
 				{ new: true }
 			)
 		}
+
+		try {
+			await Notification.deleteMany({ team: userId, isRead: userId });
+		} catch (error) {
+			console.log("Error when clean notification: ", error);
+		}
+
 		res.status(201).json({ status: true, message: "Done" });
 
 	} catch (err) {
 		return res.status(400).json({ status: false, message: err.message })
 	}
-
 }

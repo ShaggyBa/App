@@ -11,8 +11,10 @@ import { TaskTitle } from "components/Task/TaskTitle"
 import { BoardView } from "components/TasksRenderVariants/BoardView"
 import { ListView } from "components/TasksRenderVariants/ListView/ListView"
 import { AddTask } from "components/Task/AddTask"
-import { useGetAllTasksQuery } from "state/api/tasks"
+import { useDuplicateTaskMutation, useGetAllTasksQuery, useTrashTaskMutation } from "state/api/tasks"
 import { ITask } from "types/task.types"
+import { toast } from "sonner"
+import { ConfirmationWindow } from "components/TaskSettings/ConfirmationWindow"
 
 type TTabs = {
 	title: string,
@@ -39,18 +41,21 @@ const Tasks = () => {
 
 	const params = useParams()
 
-	const [selected, setSelected] = useState({})
+	const [selectedView, setSelectedView] = useState({})
 
-	const [selectedTask, setSelectedTask] = useState<ITask>({} as ITask)
+	const [selectedTask, setSelectedTask] = useState<ITask | undefined>({} as ITask)
 
-
+	const [openDialog, setOpenDialog] = useState<boolean>(false);
 	const [open, setOpen] = useState(false)
 
 	const [tasks, setTasks] = useState<ITask[]>([])
 
 	const status = params?.status || ""
 
-	const { data, isLoading, refetch } = useGetAllTasksQuery({ strQuery: status, isTrashed: "", search: "" })
+	const { data, isLoading } = useGetAllTasksQuery({ strQuery: status, isTrashed: "", search: "" })
+
+	const [trashTask] = useTrashTaskMutation()
+	const [duplicateTask] = useDuplicateTaskMutation()
 
 	const filterTasks = (status: string) => {
 		if (status) {
@@ -60,15 +65,43 @@ const Tasks = () => {
 
 	const currentTasks = status ? filterTasks(status) : tasks
 
+	const duplicateHandler = async () => {
+		try {
+			const res = await duplicateTask(selectedTask?._id)
+			toast.success("Task duplicated " + res)
+
+			setTimeout(() => {
+				setOpenDialog(false)
+				window.location.reload()
+			}, 500)
+		}
+		catch (err) {
+			toast.error("Something went wrong: " + err)
+		}
+	}
+
+	const trashTaskHandler = async () => {
+		try {
+			const res = await trashTask(selectedTask?._id).unwrap()
+
+			toast.success("Task moved to trash " + res?.message)
+
+			setTimeout(() => {
+				setOpenDialog(false)
+				window.location.reload()
+			}, 500)
+		}
+		catch (err) {
+			toast.error("Something went wrong: " + err)
+		}
+	}
+
 	useEffect(() => {
 		if (data) {
 			setTasks(data.tasks)
 		}
 	}, [data])
 
-	const onAddTask = () => {
-		refetch()
-	}
 
 	return isLoading
 		? <div className="py-10"><Loader /></div>
@@ -79,7 +112,10 @@ const Tasks = () => {
 				{
 					!status
 					&& <Button
-						onClick={() => setOpen(true)}
+						onClick={() => {
+							setSelectedTask(undefined)
+							setOpen(true)
+						}}
 						label="Create Task"
 						icon={<IoMdAdd className="text-lg" />}
 						className={"flex flex-row-reverse gap-1 items-center bg-red-600 text-white rounded-md py-2 2xl:py-2.5"}
@@ -91,7 +127,7 @@ const Tasks = () => {
 			<div>
 				<Tabs
 					tabs={TabsData}
-					setSelected={setSelected}
+					setSelected={setSelectedView}
 				>
 					{
 						!status ?
@@ -114,15 +150,39 @@ const Tasks = () => {
 					}
 
 					{
-						selected !== 1
-							? <BoardView tasks={currentTasks || tasks} setSelected={setSelectedTask} />
-							: <ListView tasks={currentTasks || tasks} setSelected={setSelectedTask} />
+						selectedView !== 1
+							? <BoardView
+								tasks={currentTasks || tasks}
+								selectedTask={selectedTask}
+								setOpenEdit={setOpen}
+								setSelectedTask={setSelectedTask}
+								duplicateHandler={duplicateHandler}
+								setOpenDialog={setOpenDialog}
+							/>
+							: <ListView
+								tasks={currentTasks || tasks}
+								setOpenEdit={setOpen}
+								setSelectedTask={setSelectedTask}
+								setOpenDialog={setOpenDialog}
+							/>
 					}
 				</Tabs>
 
-				<AddTask onSubmit={onAddTask} open={open} setOpen={setOpen} task={selectedTask || undefined} />
+
 			</div>
 
+			<AddTask
+				open={open}
+				setOpen={setOpen}
+				task={selectedTask}
+				key={new Date().getTime()}
+			/>
+
+			<ConfirmationWindow
+				open={openDialog}
+				setOpen={setOpenDialog}
+				onClick={trashTaskHandler}
+			/>
 		</div>
 }
 

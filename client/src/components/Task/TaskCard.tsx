@@ -19,7 +19,16 @@ const ICONS: { [key: string]: JSX.Element } = {
 };
 
 
-export const TaskCard = ({ task, setSelected }: { task: ITask, setSelected: any }) => {
+type Props = {
+	task: ITask
+	setSelectedTask: any
+	setOpenSubTask: any
+	setOpenEdit: any
+	openDeleteDialog: any
+	duplicateHandler: any
+}
+
+export const TaskCard = ({ task, setSelectedTask, setOpenSubTask, setOpenEdit, openDeleteDialog, duplicateHandler }: Props) => {
 
 	const { user } = useSelector((state: any) => state.auth)
 	const [isOpen, setIsOpen] = useState(false)
@@ -33,7 +42,14 @@ export const TaskCard = ({ task, setSelected }: { task: ITask, setSelected: any 
 				<span className="text-lg">{ICONS[task?.priority]}</span>
 				<span className="uppercase">{task?.priority} Priority</span>
 			</div>
-			{user?.isAdmin && <TaskSettingsBar task={task} />}
+			{user?.isAdmin && <TaskSettingsBar
+				task={task}
+				setSelectedTask={setSelectedTask}
+				setOpenSubTask={setOpenSubTask}
+				setOpenEdit={setOpenEdit}
+				openDeleteDialog={openDeleteDialog}
+				duplicateHandler={duplicateHandler}
+			/>}
 		</div>
 
 		<>

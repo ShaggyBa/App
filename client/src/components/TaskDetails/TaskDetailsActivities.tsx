@@ -2,6 +2,8 @@ import Button from "components/Button";
 import { Loader } from "components/Loader";
 import { useState } from "react";
 import { TaskDetailsCard } from "./TaskDetailsCard";
+import { usePostTaskActivityMutation } from "state/api/tasks";
+import { toast } from "sonner";
 
 
 const act_types: string[] = [
@@ -13,12 +15,28 @@ const act_types: string[] = [
 	"Assigned",
 ];
 
-export const TaskDetailsActivities = ({ activity }: { activity: any; id: string }) => {
+export const TaskDetailsActivities = ({ activity, id, refetch }: { activity: any; id: string, refetch: any }) => {
 	const [selected, setSelected] = useState(act_types[0]);
 	const [text, setText] = useState("");
 	const isLoading = false;
+	const [postTaskActivity, { isLoading: isPosting }] = usePostTaskActivityMutation()
 
-	const handleSubmit = async () => { };
+	const handleSubmit = async () => {
+		try {
+			const activityData = {
+				type: selected?.toLowerCase(),
+				activity: text
+
+			}
+			const res = await postTaskActivity({ data: activityData, id }).unwrap();
+
+			setText("");
+			toast.success("Activity added: " + res.message);
+			refetch()
+		} catch (err) {
+			toast.error("Something went wrong: " + err);
+		}
+	};
 
 	return (
 		<div className='w-full flex gap-10 2xl:gap-20 min-h-screen px-10 py-8 bg-white shadow rounded-md justify-between overflow-y-auto'>

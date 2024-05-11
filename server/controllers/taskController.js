@@ -270,13 +270,25 @@ export const updateTask = async (req, res) => {
 		task.priority = priority.toLowerCase();
 		task.assets = assets;
 		task.stage = stage.toLowerCase();
-		task.team = team;
 
-		await task.save();
+		// Find users added to the team
+		const newTeamMembers = team.filter(user => !task.team.includes(user));
 
-		res.status(200).json({ status: true, message: "Task duplicated successfully." });
+		// Update task and create notifications in parallel
+		await Promise.all([
+			...newTeamMembers.map(async (user) => {
+				await Notification.create({
+					team: [user],
+					text: `Вы были добавлены в задачу "${task.title}".`,
+					task: task._id,
+				});
+			}),
+			task.team = team,
+			task.save(),
+		]);
+
+		res.status(200).json({ status: true, message: "Task updated successfully." });
 	} catch (error) {
-
 		return res.status(400).json({ status: false, message: error.message });
 	}
 };

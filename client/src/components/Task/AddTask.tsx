@@ -46,6 +46,7 @@ export const AddTask = ({ onSubmit, open, setOpen, task }: { onSubmit?: any, ope
 
 	const [createTask, { isLoading }] = useCreateTaskMutation()
 	const [updateTask, { isLoading: updateLoading }] = useUpdateTaskMutation()
+
 	const URLS = task?.assets ? [...task?.assets] : []
 
 	const submitHandler = async (data: any) => {
@@ -55,7 +56,7 @@ export const AddTask = ({ onSubmit, open, setOpen, task }: { onSubmit?: any, ope
 				await uploadFile(file);
 			}
 			catch (err) {
-				console.log("Error uploading file", err)
+				toast.error("Something went wrong: " + err)
 			}
 			finally {
 				setUploading(false)

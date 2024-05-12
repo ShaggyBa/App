@@ -1,19 +1,11 @@
 import { Sidebar } from 'components/Sidebar'
-import { useDispatch, useSelector } from 'react-redux';
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux';
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Navbar } from "components/Navbar";
 import { MobileSidebar } from "components/MobileSidebar";
-import Cookies from 'js-cookie';
-import { useEffect } from 'react';
-import { logout } from 'state/features/authSlice'
 
 function Layout() {
 	const { user } = useSelector((state: any) => state.auth);
-
-
-	const dispatch = useDispatch()
-	const navigate = useNavigate()
-
 
 	// if (!Cookies.get("token") && localStorage.getItem("userInfo")) {
 	// 	dispatch(logout())

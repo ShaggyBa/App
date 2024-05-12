@@ -31,7 +31,7 @@ const Login = () => {
 			const result = await login(data).unwrap()
 			dispatch(setCredentials(result))
 			navigate("/")
-		} catch (err) {
+		} catch (err: any) {
 			toast.error(err?.data?.message || err.message)
 		}
 		reset()

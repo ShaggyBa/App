@@ -24,7 +24,7 @@ export const ChangePassword = ({ open, setOpen }: { open: boolean, setOpen: (ope
 		}
 		try {
 			const res = await changeUserPassword(data).unwrap()
-			toast.success("New password set successfully")
+			toast.success("New password set successfully: " + res?.message)
 
 			setTimeout(() => {
 				setOpen(false)
@@ -38,6 +38,7 @@ export const ChangePassword = ({ open, setOpen }: { open: boolean, setOpen: (ope
 
 	return <>
 		<ModalWrapper open={open} setOpen={setOpen}>
+			{/* @ts-ignore */}
 			<form onSubmit={handleSubmit(handleOnSubmit)} className="">
 				<Dialog.Title
 					as="h2"

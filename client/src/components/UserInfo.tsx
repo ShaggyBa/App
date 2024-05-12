@@ -8,7 +8,7 @@ import clsx from "clsx"
 export const UserInfo = ({ user, bgColor }: { user: TTeam, bgColor: string }) => {
 	return <div className="px-4">
 		<Popover className="relative">
-			{({ open }) => (
+			{() => (
 				<>
 					<Popover.Button
 						className={"group inline-flex items-center outline-none"}

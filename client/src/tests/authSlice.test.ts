@@ -1,4 +1,4 @@
-import authReducer, { setCredentials, login, logout, setOpenSidebar } from '../state/features/authSlice';
+import authReducer from '../state/features/authSlice';
 
 // Mock localStorage
 const localStorageMock = {

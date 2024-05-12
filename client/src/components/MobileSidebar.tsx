@@ -10,7 +10,7 @@ export const MobileSidebar = () => {
 
 	const { isSidebarOpen } = useSelector((state: any) => state.auth)
 
-	const mobileMenuRef = useRef(null)
+	const mobileMenuRef = useRef<HTMLDivElement | null>(null)
 
 	const dispatch = useDispatch()
 
@@ -30,7 +30,7 @@ export const MobileSidebar = () => {
 				leaveFrom="translate-x-0 opacity-100"
 				leaveTo="-translate-x-full opacity-0"
 			>
-				{(ref) => (
+				{() => (
 					<div
 						ref={(node) => (mobileMenuRef.current = node)}
 						className={clsx(

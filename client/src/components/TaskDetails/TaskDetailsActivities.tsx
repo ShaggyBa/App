@@ -19,7 +19,7 @@ export const TaskDetailsActivities = ({ activity, id, refetch }: { activity: any
 	const [selected, setSelected] = useState(act_types[0]);
 	const [text, setText] = useState("");
 	const isLoading = false;
-	const [postTaskActivity, { isLoading: isPosting }] = usePostTaskActivityMutation()
+	const [postTaskActivity] = usePostTaskActivityMutation()
 
 	const handleSubmit = async () => {
 		try {
@@ -48,7 +48,7 @@ export const TaskDetailsActivities = ({ activity, id, refetch }: { activity: any
 						<TaskDetailsCard
 							key={index}
 							item={el}
-							isConnected={index < activity.length - 1}
+
 						/>
 					))}
 				</div>

@@ -11,7 +11,7 @@ export const formatDate = (date: Date) => {
 	return formattedDate;
 };
 
-export function dateFormatter(dateString: string | date) {
+export function dateFormatter(dateString: string | Date) {
 	const inputDate: Date = new Date(dateString);
 
 	if (!(inputDate)) {

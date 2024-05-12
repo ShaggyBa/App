@@ -44,8 +44,8 @@ export const AddTask = ({ onSubmit, open, setOpen, task }: { onSubmit?: any, ope
 
 	const [uploading, setUploading] = useState(false)
 
-	const [createTask, { isLoading }] = useCreateTaskMutation()
-	const [updateTask, { isLoading: updateLoading }] = useUpdateTaskMutation()
+	const [createTask] = useCreateTaskMutation()
+	const [updateTask] = useUpdateTaskMutation()
 
 	const URLS = task?.assets ? [...task?.assets] : []
 
@@ -145,6 +145,7 @@ export const AddTask = ({ onSubmit, open, setOpen, task }: { onSubmit?: any, ope
 
 				<TeamList
 					setTeam={setTeam}
+					// @ts-ignore
 					team={team}
 				/>
 

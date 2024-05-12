@@ -37,7 +37,7 @@ const TASKTYPEICON: { [key: string]: JSX.Element } = {
 	),
 };
 
-export const TaskDetailsCard = ({ item, isConnected }: { item: any, isConnected?: boolean }) => {
+export const TaskDetailsCard = ({ item }: { item: any }) => {
 	return (
 		<div className='flex space-x-4'>
 			<div className='flex flex-col items-center flex-shrink-0'>

@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import Button from "components/Button";
 import { Loader } from "components/Loader";
 import { ConfirmationWindow } from "components/TaskSettings/ConfirmationWindow";
@@ -14,7 +13,6 @@ import {
 import { toast } from "sonner";
 import { useDeleteOrRestoreTaskMutation, useGetAllTasksQuery } from "state/api/tasks";
 import { ITask } from "types/task.types";
-import { PRIORITY_STYLES, TASK_TYPE } from "utils/index";
 
 
 const Trash = () => {
@@ -28,7 +26,7 @@ const Trash = () => {
 
 	const { data, isLoading, refetch } = useGetAllTasksQuery({ strQuery: "", isTrashed: "true", search: "" })
 
-	const [deleteOrRestoreTask, { isLoading: isDeleting }] = useDeleteOrRestoreTaskMutation();
+	const [deleteOrRestoreTask] = useDeleteOrRestoreTaskMutation();
 
 	const deleteAllClick = () => {
 		setType("deleteAll");

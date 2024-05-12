@@ -30,7 +30,7 @@ const Dashboard = () => {
 
 	const [totals, setTotals] = useState<any>({})
 
-	const { data: fetchedData, isLoading, refetch } = useGetDashboardStatisticsQuery()
+	const { data: fetchedData, isLoading } = useGetDashboardStatisticsQuery()
 
 
 	const stats: TStats[] = totals ? [

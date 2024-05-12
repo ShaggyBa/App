@@ -14,6 +14,7 @@ import { PRIORITY_STYLES, TASK_TYPE, getInitials } from "../utils";
 import { TaskDetailsActivities } from "components/TaskDetails/TaskDetailsActivities";
 import { useGetTaskInfoQuery } from "state/api/tasks";
 import { Loader } from "components/Loader";
+import { ITask } from "types/task.types";
 
 
 const ICONS: { [key: string]: JSX.Element } = {
@@ -39,7 +40,7 @@ const TaskDetails = () => {
 	const { data, isLoading, refetch } = useGetTaskInfoQuery(id)
 
 	const [selected, setSelected] = useState(0);
-	const [task, setTask] = useState({})
+	const [task, setTask] = useState({} as ITask)
 
 	useEffect(() => {
 		if (data)

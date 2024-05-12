@@ -31,7 +31,7 @@ const PORT = process.env.PORT || 7777;
 const app = express();
 
 app.use(cors({
-	origin: ["http://localhost:3000", "http://localhost:3001", "tasker-q3frbf65w-shaggybas-projects.vercel.app"],
+	origin: ["http://localhost:3000", "http://localhost:3001", "https://tasker-app-pied.vercel.app"],
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true
 }))

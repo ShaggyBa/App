@@ -2,7 +2,9 @@ import { Dialog } from "@headlessui/react";
 import Button from "components/Button";
 import { Loader } from "components/Loader";
 import { ModalWrapper } from "components/ModalWrapper";
+import { SelectList } from "components/Task/SelectList";
 import { Textbox } from "components/TextBox";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -35,16 +37,18 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 	const [addNewUser, { isLoading }] = useRegisterMutation()
 	const [updateUser, { isLoading: isUpdating }] = useUpdateUserProfileMutation()
 
+	const [selectedPermission, setSelectedPermission] = useState<string>("developer")
+
 	const handleOnSubmit = async (data: { name: string, title: string, email: string, password: string, role: string }) => {
 		try {
 			if (!selectedUser) {
-				await addNewUser(data).unwrap()
+				await addNewUser({ ...data, role: selectedPermission }).unwrap()
 				if (refetchRequest)
 					await refetchRequest()
 				toast.success("User added successfully")
 			}
 			else {
-				const res = await updateUser({ ...data }).unwrap()
+				const res = await updateUser({ ...data, role: selectedPermission }).unwrap()
 				if (refetchRequest)
 					await refetchRequest()
 				toast.success("User updated successfully")
@@ -99,7 +103,7 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 							})}
 							error={errors.title ? errors.title.message : ""}
 						/>
-						<Textbox
+						{!selectedUser && <Textbox
 							placeholder='Email Address'
 							type='email'
 							name='email'
@@ -109,9 +113,9 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 								required: selectedUser ? false : "Email Address is required!",
 							})}
 							error={errors.email ? errors.email.message : ""}
-						/>
+						/>}
 
-						<Textbox
+						{!selectedUser && <Textbox
 							placeholder='Password'
 							type='password'
 							name='password'
@@ -121,18 +125,13 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 								required: selectedUser ? false : "Password is required!",
 							})}
 							error={errors.password ? errors.password.message : ""}
-						/>
+						/>}
+						<SelectList
+							label="Permission"
+							lists={["developer", "teamlead", "admin"]}
+							selected={selectedPermission}
+							setSelected={setSelectedPermission}
 
-						<Textbox
-							placeholder='Role'
-							type='text'
-							name='role'
-							label='Role'
-							className='w-full rounded'
-							register={register("role", {
-								required: selectedUser ? false : "User role is required!",
-							})}
-							error={errors.role ? errors.role.message : ""}
 						/>
 					</div>
 

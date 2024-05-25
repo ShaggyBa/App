@@ -5,8 +5,6 @@ export const registerUser = async (req, res) => {
 	try {
 		const { name, email, password, isAdmin, role, title } = req.body
 
-		console.log(req.body)
-
 		const userExist = await User.findOne({ email })
 
 		if (userExist) {
@@ -21,7 +19,7 @@ export const registerUser = async (req, res) => {
 			email,
 			password,
 
-			isAdmin,
+			isAdmin: (role === "admin" || role === "superadmin") ? true : false,
 			role,
 			title
 		})
@@ -47,7 +45,6 @@ export const loginUser = async (req, res) => {
 		const { email, password } = req.body
 
 		const user = await User.findOne({ email })
-
 		if (!user) {
 			return res.status(401).json({ status: false, message: "Invalid email or password." })
 		}

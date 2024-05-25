@@ -1,7 +1,6 @@
 import { EndpointBuilder } from "@reduxjs/toolkit/query"
 import { apiSlice } from "state/features/apiSlice"
 import { TUser } from "types/app.interface"
-
 const API_URL = "/user"
 
 export const authApiSlice = apiSlice.injectEndpoints({

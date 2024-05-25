@@ -14,6 +14,11 @@ import { UserTable } from "components/UserTable/UserTable"
 import { useEffect, useState } from "react"
 import { useGetDashboardStatisticsQuery } from "state/api/tasks"
 import { Loader } from "components/Loader"
+import { useLogoutMutation } from "state/api/user"
+import { useNavigate } from "react-router-dom"
+import { useStore } from "react-redux"
+import { logout } from "../state/features/authSlice"
+
 
 
 
@@ -30,8 +35,13 @@ const Dashboard = () => {
 
 	const [totals, setTotals] = useState<any>({})
 
-	const { data: fetchedData, isLoading } = useGetDashboardStatisticsQuery()
+	const { data: fetchedData, error, isLoading } = useGetDashboardStatisticsQuery()
 
+	const store = useStore()
+
+	const [logoutMutation] = useLogoutMutation()
+
+	const navigate = useNavigate()
 
 	const stats: TStats[] = totals ? [
 		{
@@ -69,6 +79,11 @@ const Dashboard = () => {
 	] : [];
 
 	useEffect(() => {
+		if (error && error.status === 401) {
+			logoutMutation()
+			store.dispatch(logout)
+			navigate("/login")
+		}
 		setTotals(fetchedData?.body || {})
 		// console.log(fetchedData)
 	}, [fetchedData])

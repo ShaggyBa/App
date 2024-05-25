@@ -3,12 +3,15 @@ import { BsChevronExpand } from "react-icons/bs";
 import { MdCheck } from "react-icons/md";
 import { Fragment } from "react/jsx-runtime";
 
+
 export const SelectList = ({ label, lists, selected, setSelected }: { label: string, lists: string[], selected: string, setSelected: any }) => {
+
+
 	return (
 		<div className='w-full'>
 			{label && <p className='text-slate-900 dark:text-gray-500'>{label}</p>}
 
-			<Listbox value={selected} onChange={setSelected}>
+			<Listbox value={selected} onChange={(setSelected)}>
 				<div className='relative mt-1'>
 					<Listbox.Button className='relative w-full cursor-default rounded bg-white pl-3 pr-10 text-left px-3 py-2.5 2xl:py-3 border border-gray-300 sm:text-sm'>
 						<span className='block truncate'>{selected}</span>

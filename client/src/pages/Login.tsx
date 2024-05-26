@@ -31,7 +31,7 @@ const Login = () => {
 			const result = await login(data).unwrap()
 			console.log(result)
 			dispatch(setCredentials(result))
-			// navigate("/")
+			navigate("/")
 		} catch (err: any) {
 			toast.error(err?.data?.message || err.message)
 		}
@@ -39,7 +39,7 @@ const Login = () => {
 	}
 
 	useEffect(() => {
-		// user && navigate('/dashboard')
+		user && navigate('/dashboard')
 	}, [user])
 
 

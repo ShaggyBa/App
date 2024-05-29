@@ -15,3 +15,9 @@ export type TUser = {
 	country: string
 	company: string
 }
+
+export type TQueryResult = {
+	status: string,
+	message: string
+	data?: any
+}

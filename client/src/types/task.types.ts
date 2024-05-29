@@ -36,3 +36,10 @@ export type TStage = {
 export type TPriority = {
 	[key: string]: string
 }
+
+
+export enum TStageEnum {
+	"TODO" = "todo",
+	"IN_PROGRESS" = "in progress",
+	"COMPLETED" = "completed",
+}

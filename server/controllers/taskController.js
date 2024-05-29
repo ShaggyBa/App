@@ -272,8 +272,7 @@ export const updateTask = async (req, res) => {
 		task.stage = stage.toLowerCase();
 
 		// Find users added to the team
-		const newTeamMembers = team.filter(user => !task.team.includes(user));
-
+		const newTeamMembers = team.filter(user => !task.team.some(existingUser => existingUser._id.toString() === user._id.toString()));
 		// Update task and create notifications in parallel
 		await Promise.all([
 			...newTeamMembers.map(async (user) => {

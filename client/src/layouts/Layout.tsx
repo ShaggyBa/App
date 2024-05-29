@@ -40,7 +40,7 @@ function Layout() {
 			<div className='flex-1 overflow-y-auto'>
 				<Navbar />
 
-				<div className='p-4 2xl:px-10'>
+				<div className='p-4 2xl:px-10 h-full'>
 					<Outlet />
 				</div>
 			</div>

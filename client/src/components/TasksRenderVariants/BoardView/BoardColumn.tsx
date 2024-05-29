@@ -22,8 +22,8 @@ export const BoardColumn = ({ columnId, openDeleteDialog, setOpenSubTask, setOpe
 	const [updateTaskQuery] = useUpdateTaskMutation()
 
 	const dispatch = useDispatch()
-
-	const [drop] = useDrop({
+	//@ts-ignore
+	const [collectedProps, drop] = useDrop({
 		accept: 'TASK', // Accept tasks of type 'TASK'
 		drop: async (item: { task: ITask }, monitor) => {
 			console.log(monitor)
@@ -49,7 +49,6 @@ export const BoardColumn = ({ columnId, openDeleteDialog, setOpenSubTask, setOpe
 	});
 
 	return (
-		//@ts-ignore
 		<div ref={drop} className="h-full min-h-screen flex flex-col gap-y-2">
 			{tasks.map((task, index) => (
 				<TaskCard

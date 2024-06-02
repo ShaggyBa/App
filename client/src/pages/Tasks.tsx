@@ -93,7 +93,6 @@ const Tasks = () => {
 
 	useEffect(() => {
 		if (data) {
-			// setTasks(data.tasks)
 			dispatch(getTasks(data.tasks))
 		}
 	}, [data])

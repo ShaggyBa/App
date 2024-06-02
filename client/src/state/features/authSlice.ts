@@ -13,6 +13,7 @@ interface User {
 
 interface AuthState {
 	user: User | null;
+	errorMsg: { text: string, type: string };
 	isSidebarOpen: boolean;
 	testId: string;
 }
@@ -23,6 +24,7 @@ const parsedUserInfo: User | null = userInfoString ? JSON.parse(userInfoString) 
 
 const initialState: AuthState = {
 	user: parsedUserInfo,
+	errorMsg: { text: "", type: "" },
 	isSidebarOpen: false,
 	testId: "66188064eeec4ff8cb71faab"
 }
@@ -45,9 +47,12 @@ const authSlice = createSlice({
 		},
 		setOpenSidebar: (state, action) => {
 			state.isSidebarOpen = action.payload
+		},
+		showErrorMessage: (state, action) => {
+			state.errorMsg = action.payload
 		}
 	}
 })
 
-export const { setCredentials, login, logout, setOpenSidebar } = authSlice.actions;
+export const { setCredentials, login, logout, setOpenSidebar, showErrorMessage } = authSlice.actions;
 export default authSlice.reducer;

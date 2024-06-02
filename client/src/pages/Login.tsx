@@ -5,10 +5,11 @@ import { useDispatch, useSelector } from "react-redux"
 import Button from "components/Button"
 import FormField from "components/FormField"
 import { ILoginForm } from "types/app.interface"
-import { setCredentials } from "state/features/authSlice"
+import { setCredentials, showErrorMessage } from "state/features/authSlice"
 import { useLoginMutation } from "state/api/user"
 import { toast } from "sonner"
 import { Loader } from "components/Loader"
+import { getErrorMessage } from "state/selectors/errors"
 
 const Login = () => {
 
@@ -24,19 +25,27 @@ const Login = () => {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 
+	const errorMsg = useSelector(getErrorMessage)
+
+	if (errorMsg.type === "error")
+		setTimeout(() => {
+			toast.info(errorMsg.text)
+		}, 100)
+
 	const [login, { isLoading }] = useLoginMutation()
 
 	const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
 		try {
 			const result = await login(data).unwrap()
-			console.log(result)
 			dispatch(setCredentials(result))
+			dispatch(showErrorMessage({ text: "", type: "" }))
 			navigate("/")
 		} catch (err: any) {
 			toast.error(err?.data?.message || err.message)
 		}
 		reset()
 	}
+
 
 	useEffect(() => {
 		user && navigate('/dashboard')

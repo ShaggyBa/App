@@ -13,6 +13,9 @@ import { app } from "utils/firebase"
 import { useCreateTaskMutation, useUpdateTaskMutation } from "state/api/tasks"
 import { toast } from "sonner"
 import { dateFormatter } from "utils/index"
+import { createTask, updateTask } from "state/features/taskSlice"
+import { useDispatch } from "react-redux"
+import { TQueryResult } from "types/app.interface"
 
 
 const LISTS: string[] = ["TODO", "IN PROGRESS", "COMPLETED"];
@@ -21,7 +24,7 @@ const PRIORITY: string[] = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
 const uploadedFileURLs: string[] = [];
 
 
-export const AddTask = ({ onSubmit, open, setOpen, task }: { onSubmit?: any, open: boolean, setOpen: any, task?: ITask | undefined }) => {
+export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, task?: ITask | undefined }) => {
 
 	const defaultValues = {
 		title: task?.title || "",
@@ -44,10 +47,12 @@ export const AddTask = ({ onSubmit, open, setOpen, task }: { onSubmit?: any, ope
 
 	const [uploading, setUploading] = useState(false)
 
-	const [createTask] = useCreateTaskMutation()
-	const [updateTask] = useUpdateTaskMutation()
+	const [createTaskQuery] = useCreateTaskMutation()
+	const [updateTaskQuery] = useUpdateTaskMutation()
 
 	const URLS = task?.assets ? [...task?.assets] : []
+
+	const dispatch = useDispatch()
 
 	const submitHandler = async (data: any) => {
 		for (const file of assets) {
@@ -74,21 +79,26 @@ export const AddTask = ({ onSubmit, open, setOpen, task }: { onSubmit?: any, ope
 				priority
 			}
 
-			const res = task?._id ? await updateTask({ newData, id: task?._id }).unwrap() : await createTask(newData).unwrap();
+			task?._id
+				? await updateTaskQuery({ newData, id: task?._id }).unwrap().then((res: TQueryResult) => {
+					dispatch(updateTask({ ...newData, _id: task?._id }))
+					toast.success(`${task?._id ? "Task Updated: " + res.message : "Task Created: " + res.message}`)
 
-			if (onSubmit)
-				onSubmit()
-			else
-				window.location.reload()
+				})
+				: await createTaskQuery(newData).unwrap().then((res: TQueryResult) => {
+					dispatch(createTask({ ...newData }))
+					toast.success(`${task?._id ? "Task Updated: " + res.message : "Task Created: " + res.message}`)
 
-			toast.success(`${task?._id ? "Task Updated: " + res.message : "Task Created: " + res.message}`)
+				});
+
+
 
 			setTimeout(() => {
 				setOpen(false)
 			}, 500)
 		}
 		catch (err) {
-
+			toast.error(`Error while ${task?._id ? "updating" : "creating"} task: ` + err)
 		}
 	}
 

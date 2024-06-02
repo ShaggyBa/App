@@ -21,3 +21,8 @@ export type TQueryResult = {
 	message: string
 	data?: any
 }
+
+export type TErrorResponce = {
+	message: string
+	status?: string
+}

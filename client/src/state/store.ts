@@ -3,6 +3,7 @@ import authSlice from "./features/authSlice"
 import { apiSlice } from "./features/apiSlice";
 import { setupListeners } from '@reduxjs/toolkit/query';
 import tasksSlice from './features/taskSlice';
+import { rtkQueryErrorLogger } from '../middleware/authError';
 
 
 export const store = configureStore({
@@ -12,7 +13,7 @@ export const store = configureStore({
 		tasks: tasksSlice
 	},
 	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware().concat(apiSlice.middleware),
+		getDefaultMiddleware().concat(rtkQueryErrorLogger, apiSlice.middleware),
 	devTools: true
 })
 

@@ -19,8 +19,8 @@ import { TQueryResult } from "types/app.interface"
 import { useTranslation } from "react-i18next"
 
 
-const LISTS: string[] = ["TODO", "IN PROGRESS", "COMPLETED"];
-const PRIORITY: string[] = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
+const LISTS: string[] = ["Todo", "InProgress", "Completed"];
+const PRIORITY: string[] = ["high", "medium", "normal", "low"];
 
 const uploadedFileURLs: string[] = [];
 
@@ -42,9 +42,9 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 	const [team, setTeam] = useState(task?.team || [])
 
-	const [stage, setStage] = useState(task?.stage?.toUpperCase() || LISTS[0])
+	const [stage, setStage] = useState(task?.stage || LISTS[0])
 
-	const [priority, setPriority] = useState(task?.priority?.toUpperCase() || PRIORITY[2])
+	const [priority, setPriority] = useState(task?.priority || PRIORITY[2])
 
 	const [assets, setAssets] = useState<File[]>([]);
 
@@ -57,7 +57,7 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 	const dispatch = useDispatch()
 
-	console.log(t(priority.toLowerCase(), { lng: "en" }))
+
 
 	const submitHandler = async (data: any) => {
 		for (const file of assets) {
@@ -187,8 +187,8 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 					<SelectList
 						label={t('PriorityLevel')}
-						lists={translatedData(PRIORITY, t)}
-						selected={translatedData(priority, t)}
+						lists={PRIORITY}
+						selected={priority}
 						setSelected={setPriority}
 					/>
 

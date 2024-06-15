@@ -6,6 +6,7 @@ import { AddUserForm } from "components/UsersList/AddUserForm"
 import { ListHead } from "components/UsersList/ListHead"
 import { ListRow } from "components/UsersList/ListRow"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { IoMdAdd } from "react-icons/io"
 import { toast } from "sonner"
 import { useDeleteUserMutation, useGetTeamUsersQuery, useSetUserStatusMutation } from "state/api/actionsUser"
@@ -24,6 +25,8 @@ const Users = () => {
 	const [deleteUser] = useDeleteUserMutation()
 
 	const [userSetStatus] = useSetUserStatusMutation()
+
+	const { t } = useTranslation()
 
 	const handleSetOpenDeleteModal = (user: TUser) => {
 		setSelected(user);
@@ -50,16 +53,16 @@ const Users = () => {
 		try {
 			await deleteUser(user._id)
 			await refetch()
-			toast.success(`User: ${user.name} was deleted successfully`)
+			toast.success(`${t("User")}: ${user.name} ${t("UserDeletedMsg")}`)
 		}
 		catch (err: any) {
-			toast.error("Error while deleting: " + err.message);
+			toast.error(t("ErrorDeleting") + err.message);
 		}
 	}
 
 	const userActionHandler = async () => {
 		try {
-			if (selected === null) throw new Error("Please select a user")
+			if (selected === null) throw new Error(t("SelectUser"))
 			const result = await userSetStatus({ userId: selected._id, isActive: !selected.isActive })
 			updateTable(result.data.message)
 
@@ -72,7 +75,7 @@ const Users = () => {
 
 	const updateTable = (msg?: string) => {
 		refetch()
-		toast.success(msg || "Successfully")
+		toast.success(msg || t("Successfully"))
 		setSelected(null)
 	}
 
@@ -84,9 +87,9 @@ const Users = () => {
 		<>
 			<div className="w-full md:px-1 px-0 mb-6">
 				<div className="flex items-center justify-between mb-8">
-					<Title title="Team members" />
+					<Title title={t("TeamMembers")} />
 					<Button
-						label="Add User"
+						label={t("AddNewUser")}
 						icon={<IoMdAdd className="text-lg" />}
 						className="flex flex-row-reverse gap-1 items-center bg-red-600 text-white rounded-md py-2 2xl:py-2.5"
 						onClick={() => handleSetUserManageModal()}
@@ -128,7 +131,7 @@ const Users = () => {
 			<ConfirmationWindow
 				open={openDeleteModal}
 				setOpen={setOpenDeleteModal}
-				msg="Do you want to remove this user?"
+				msg={t("RemoveUserMsg")}
 				onClick={deleteHandler}
 				param={selected}
 			/>

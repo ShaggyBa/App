@@ -7,6 +7,7 @@ import { MdAdd, MdOutlineEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { Menu, Transition } from "@headlessui/react";
 import { ITask } from "types/task.types";
+import { useTranslation } from "react-i18next";
 
 type Props = {
 	task: ITask
@@ -21,24 +22,26 @@ export const TaskSettingsBar = ({ task, setSelectedTask, setOpenSubTask, setOpen
 
 	const navigate = useNavigate();
 
+	const { t } = useTranslation()
+
 	const items = [
 		{
-			label: "Open Task",
+			label: t("OpenTask"),
 			icon: <AiTwotoneFolderOpen className='mr-2 h-5 w-5' aria-hidden='true' />,
 			onClick: () => navigate(`/task/${task._id}`),
 		},
 		{
-			label: "Edit",
+			label: t("Edit"),
 			icon: <MdOutlineEdit className='mr-2 h-5 w-5' aria-hidden='true' />,
 			onClick: () => setOpenEdit(true),
 		},
 		{
-			label: "Add Sub-Task",
+			label: t("AddSubTaskBtn"),
 			icon: <MdAdd className='mr-2 h-5 w-5' aria-hidden='true' />,
 			onClick: () => setOpenSubTask(true),
 		},
 		{
-			label: "Duplicate",
+			label: t("Duplicate"),
 			icon: <HiDuplicate className='mr-2 h-5 w-5' aria-hidden='true' />,
 			onClick: () => duplicateHandler(),
 		},
@@ -92,7 +95,7 @@ export const TaskSettingsBar = ({ task, setSelectedTask, setOpenSubTask, setOpen
 												className='mr-2 h-5 w-5 text-red-400'
 												aria-hidden='true'
 											/>
-											Delete
+											{t("Delete")}
 										</button>
 									)}
 								</Menu.Item>

@@ -1,12 +1,19 @@
-export const ListHead = () => (
-	<thead className='border-b border-gray-300'>
-		<tr className='text-black text-left'>
-			<th className='py-2'>Full Name</th>
-			<th className='py-2'>Title</th>
-			<th className='py-2'>Email</th>
-			<th className='py-2'>Role</th>
-			<th className='py-2'>Active</th>
+import { useTranslation } from "react-i18next";
 
-		</tr>
-	</thead>
-);
+export const ListHead = () => {
+
+	const { t } = useTranslation()
+
+	return (
+		<thead className='border-b border-gray-300'>
+			<tr className='text-black text-left'>
+				<th className='py-2'>{t("FullName")}</th>
+				<th className='py-2'>{t("UserTitle")}</th>
+				<th className='py-2'>{t("Email")}</th>
+				<th className='py-2'>{t("Role")}</th>
+				<th className='py-2'>{t("Active")}</th>
+
+			</tr>
+		</thead>
+	)
+};

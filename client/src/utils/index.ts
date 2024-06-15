@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { ITask, TPriority, TStage } from "types/task.types";
 
 export const formatDate = (date: Date) => {
@@ -85,9 +86,15 @@ export const translatedTaskData = (task: ITask, t: any) => {
 	}
 }
 
-export const translatedData = (data: string | string[], t: any) => {
-	if (typeof data === "string")
-		return t(data) || data
+export const translatedData = (data: string | string[], lang?: string) => {
 
-	return data.map((el: string) => t(el.toLowerCase()).toUpperCase() || el)
+	if (typeof data === "string") {
+		const tData = i18next.t(data, { lng: lang ? lang : i18next.language })
+		return tData
+	}
+
+	return data.map((el: string) => {
+		const tData = i18next.t(el, { lng: lang ? lang : i18next.language })
+		return tData
+	})
 }

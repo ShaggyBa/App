@@ -44,7 +44,7 @@ export const Sidebar = () => {
 			icon: <MdOutlinePendingActions />,
 		},
 		{
-			label: t("ToDo"),
+			label: t("Todo"),
 			link: "todo/todo",
 			icon: <MdOutlinePendingActions />,
 		},

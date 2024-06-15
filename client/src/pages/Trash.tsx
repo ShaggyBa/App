@@ -33,19 +33,19 @@ const Trash = () => {
 
 	const deleteAllClick = () => {
 		setType("deleteAll");
-		setMsg("Do you want to permenantly delete all items?");
+		setMsg(t("DeleteAllTrashedItemsMsg"));
 		setOpenDialog(true);
 	};
 
 	const restoreAllClick = () => {
 		setType("restoreAll");
-		setMsg("Do you want to restore all items in the trash?");
+		setMsg(t("RestoreAllTrashedItemsMsg"));
 		setOpenDialog(true);
 	};
 
 	const deleteClick = (id: string) => {
 		setType("delete");
-		setMsg("Do you want to delete the selected item?");
+		setMsg(t("DeleteTrashedItemMsg"));
 		setSelected(id);
 		setOpenDialog(true);
 	};
@@ -53,7 +53,7 @@ const Trash = () => {
 	const restoreClick = (id: string) => {
 		setSelected(id);
 		setType("restore");
-		setMsg("Do you want to restore the selected item?");
+		setMsg(t("RestoreTrashedItemMsg"));
 		setOpenDialog(true);
 	}
 
@@ -78,7 +78,7 @@ const Trash = () => {
 					break;
 			}
 
-			toast.success(type === "delete" ? "Task deleted successfully: " + res?.message : "Task restored successfully: " + res?.message)
+			toast.success(type === "delete" ? t("TaskDeletedSuccessfullyMsg") + res?.message : t("TaskRestoredSuccessfullyMsg") + res?.message)
 
 			setTimeout(() => {
 				setOpenDialog(false)
@@ -103,17 +103,17 @@ const Trash = () => {
 					? <div className="pt-10"><Loader /></div>
 					: <div className='w-full md:px-1 px-0 mb-6'>
 						<div className='flex items-center justify-between mb-8'>
-							<Title title='Trashed Tasks' />
+							<Title title={t("TrashedTasks")} />
 
 							<div className='flex gap-2 md:gap-4 items-center'>
 								<Button
-									label='Restore All'
+									label={t('RestoreAll')}
 									icon={<MdOutlineRestore className='text-lg hidden md:flex' />}
 									className='flex flex-row-reverse gap-1 items-center  text-black text-sm md:text-base rounded-md 2xl:py-2.5'
 									onClick={() => restoreAllClick()}
 								/>
 								<Button
-									label='Delete All'
+									label={t('DeleteAll')}
 									icon={<MdDelete className='text-lg hidden md:flex' />}
 									className='flex flex-row-reverse gap-1 items-center  text-red-600 text-sm md:text-base rounded-md 2xl:py-2.5'
 									onClick={() => deleteAllClick()}

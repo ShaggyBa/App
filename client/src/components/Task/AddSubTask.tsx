@@ -20,8 +20,8 @@ export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any,
 
 	const handleOnSubmit = async (data: any) => {
 		try {
-			const res = await addSubTask({ data, id }).unwrap();
-			toast.success(res.message);
+			await addSubTask({ data, id }).unwrap();
+			toast.success(t("CreatedSubTaskMsg"));
 			setTimeout(() => {
 				window.location.reload();
 				setOpen(false);
@@ -39,17 +39,17 @@ export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any,
 						as='h2'
 						className='text-base font-bold leading-6 text-gray-900 mb-4'
 					>
-						ADD SUB-TASK
+						{t("AddSubTask")}
 					</Dialog.Title>
 					<div className='mt-2 flex flex-col gap-6'>
 						<Textbox
-							placeholder='Sub-Task title'
+							placeholder={t('SubTaskTitle')}
 							type='text'
 							name='title'
-							label='Title'
+							label={t('Title')}
 							className='w-full rounded'
 							register={register("title", {
-								required: "Title is required!",
+								required: `${t('Title')} ${t('IsRequired')}`,
 							})}
 							error={errors.title ? errors.title.message : ""}
 						/>
@@ -59,21 +59,21 @@ export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any,
 								placeholder='Date'
 								type='date'
 								name='date'
-								label='Task Date'
+								label={(t('Date'))}
 								className='w-full rounded'
 								register={register("date", {
-									required: "Date is required!",
+									required: `${t('Date')} ${t('IsRequired')}`,
 								})}
 								error={errors.date ? errors.date.message : ""}
 							/>
 							<Textbox
-								placeholder='Tag'
+								placeholder={t('Tag')}
 								type='text'
 								name='tag'
-								label='Tag'
+								label={t('Tag')}
 								className='w-full rounded'
 								register={register("tag", {
-									required: "Tag is required!",
+									required: `${t('Tag')} ${t('IsRequired')}`,
 								})}
 								error={errors.tag ? errors.tag.message : ""}
 							/>
@@ -83,14 +83,14 @@ export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any,
 						<Button
 							type='submit'
 							className='bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 sm:ml-3 sm:w-auto'
-							label='Add Task'
+							label={t('AddSubTaskBtn')}
 						/>
 
 						<Button
 							type='button'
 							className='bg-white border text-sm font-semibold text-gray-900 sm:w-auto'
 							onClick={() => setOpen(false)}
-							label='Cancel'
+							label={t('Cancel')}
 						/>
 					</div>
 				</form>

@@ -145,7 +145,7 @@ const Tasks = () => {
 						{
 							selectedView === 0 ? <div className="w-full flex justify-between gap-4 md:gap-x-12 py-4">
 								<TaskTitle
-									label={t("ToDo")}
+									label={t("Todo")}
 									className={TaskType.todo}
 								/>
 								<TaskTitle

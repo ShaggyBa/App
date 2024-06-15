@@ -81,56 +81,56 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 						as='h2'
 						className='text-base font-bold leading-6 text-gray-900 mb-4'
 					>
-						{selectedUser ? "UPDATE PROFILE" : "ADD NEW USER"}
+						{selectedUser ? t("UpdateUser") : t("AddNewUser")}
 					</Dialog.Title>
 					<div className='mt-2 flex flex-col gap-6'>
 						<Textbox
-							placeholder='Full name'
+							placeholder={t('FullName')}
 							type='text'
 							name='name'
-							label='Full Name'
+							label={t('FullName')}
 							className='w-full rounded'
 							register={register("name", {
-								required: selectedUser ? false : "Full name is required!",
+								required: selectedUser ? false : `${t('FullName')} ${t('IsRequired')}`,
 							})}
 							error={errors.name ? errors.name.message : ""}
 						/>
 						<Textbox
-							placeholder='Title'
+							placeholder={t('Title')}
 							type='text'
 							name='title'
-							label='Title'
+							label={t('Title')}
 							className='w-full rounded'
 							register={register("title", {
-								required: selectedUser ? false : "Title is required!",
+								required: selectedUser ? false : `${t('Title')} ${t('IsRequired')}`,
 							})}
 							error={errors.title ? errors.title.message : ""}
 						/>
 						{!selectedUser && <Textbox
-							placeholder='Email Address'
+							placeholder={t("Email")}
 							type='email'
 							name='email'
-							label='Email Address'
+							label={t('Email')}
 							className='w-full rounded'
 							register={register("email", {
-								required: selectedUser ? false : "Email Address is required!",
+								required: selectedUser ? false : `${t('Email')} ${t('IsRequired')}`,
 							})}
 							error={errors.email ? errors.email.message : ""}
 						/>}
 
 						{!selectedUser && <Textbox
-							placeholder='Password'
+							placeholder={t('Password')}
 							type='password'
 							name='password'
-							label='Password'
+							label={t('Password')}
 							className='w-full rounded'
 							register={register("password", {
-								required: selectedUser ? false : "Password is required!",
+								required: selectedUser ? false : `${t('Password')} ${t('IsRequired')}`,
 							})}
 							error={errors.password ? errors.password.message : ""}
 						/>}
 						<SelectList
-							label="Permission"
+							label={t("Permission")}
 							lists={["developer", "teamlead", "admin"]}
 							selected={selectedPermission}
 							setSelected={setSelectedPermission}
@@ -147,14 +147,14 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 							<Button
 								type='submit'
 								className='bg-red-600 px-8 text-sm font-semibold text-white hover:bg-red-700 rounded  sm:w-auto'
-								label='Submit'
+								label={t('Submit')}
 							/>
 
 							<Button
 								type='button'
 								className='bg-white px-5 text-sm font-semibold text-gray-900 sm:w-auto'
 								onClick={() => setOpen(false)}
-								label='Cancel'
+								label={t('Cancel')}
 							/>
 						</div>
 					)}

@@ -6,7 +6,6 @@ import { Fragment } from "react/jsx-runtime";
 
 export const SelectList = ({ label, lists, selected, setSelected }: { label: string, lists: string[], selected: string, setSelected: any }) => {
 
-
 	return (
 		<div className='w-full'>
 			{label && <p className='text-slate-900 dark:text-gray-500'>{label}</p>}

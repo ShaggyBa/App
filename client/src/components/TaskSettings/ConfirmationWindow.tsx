@@ -2,6 +2,7 @@ import { Dialog } from "@headlessui/react"
 import clsx from "clsx"
 import Button from "components/Button"
 import { ModalWrapper } from "components/ModalWrapper"
+import { useTranslation } from "react-i18next"
 import { FaQuestion } from "react-icons/fa"
 
 type Props = {
@@ -27,6 +28,9 @@ export const ConfirmationWindow = (
 		param
 	}: Props) => {
 
+
+	const { i18n, t } = useTranslation()
+
 	const closeDialog = () => {
 		setType("delete");
 		setMsg("");
@@ -37,6 +41,10 @@ export const ConfirmationWindow = (
 		onClick(param);
 		closeDialog();
 	}
+
+
+	const confirmationMessage = i18n.language === 'en' ? `Are you sure you want to ${type === "restore" ? "restore" : "delete"} the selected record?`
+		: `Вы уверены, что хотите ${type === "restore" ? "восстановить" : "удалить"} выбранный элемент?`
 
 	return (
 		<>
@@ -56,7 +64,7 @@ export const ConfirmationWindow = (
 					</Dialog.Title>
 
 					<p className='text-center text-gray-500'>
-						{msg ?? `Are you sure you want to ${type === "restore" ? "restore" : "delete"} the selected record?`}
+						{msg ?? confirmationMessage}
 					</p>
 
 					<div className='bg-gray-50 py-3 sm:flex sm:flex-row-reverse gap-4'>
@@ -69,14 +77,14 @@ export const ConfirmationWindow = (
 									: "bg-red-600 hover:bg-red-500"
 							)}
 							onClick={() => onClickHandler()}
-							label={(type === "restore" || type === "restoreAll") ? "Restore" : "Delete"}
+							label={(type === "restore" || type === "restoreAll") ? t("Restore") : t("Delete")}
 						/>
 
 						<Button
 							type='button'
 							className='bg-white px-8 text-sm font-semibold text-gray-900 sm:w-auto border'
 							onClick={closeDialog}
-							label='Cancel'
+							label={t('Cancel')}
 						/>
 					</div>
 				</div>

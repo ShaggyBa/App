@@ -25,6 +25,6 @@ export default defineConfig({
 			state: "/src/state",
 			data: "/src/data"
 		}
-	}
+	},
 })
 

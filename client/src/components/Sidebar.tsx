@@ -8,6 +8,8 @@ import { FaTasks, FaTrashAlt, FaUsers } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import { NavLink } from "components/NavLink";
 import { useSelector } from "react-redux";
+import i18n from "../i18n";
+import { useTranslation } from "react-i18next";
 
 export type TLinkData = {
 	label: string,
@@ -15,45 +17,48 @@ export type TLinkData = {
 	icon: JSX.Element
 }
 
-const linkData: TLinkData[] = [
-	{
-		label: "Dashboard",
-		link: "dashboard",
-		icon: <MdDashboard />,
-	},
-	{
-		label: "Tasks",
-		link: "tasks",
-		icon: <FaTasks />,
-	},
-	{
-		label: "Completed",
-		link: "completed/completed",
-		icon: <MdTaskAlt />,
-	},
-	{
-		label: "In Progress",
-		link: "in-progress/in progress",
-		icon: <MdOutlinePendingActions />,
-	},
-	{
-		label: "To Do",
-		link: "todo/todo",
-		icon: <MdOutlinePendingActions />,
-	},
-	{
-		label: "Team",
-		link: "team",
-		icon: <FaUsers />,
-	},
-	{
-		label: "Trash",
-		link: "trashed",
-		icon: <FaTrashAlt />,
-	},
-];
 
 export const Sidebar = () => {
+
+	const { t } = useTranslation()
+
+	const linkData: TLinkData[] = [
+		{
+			label: t("Dashboard"),
+			link: "dashboard",
+			icon: <MdDashboard />,
+		},
+		{
+			label: t("Tasks"),
+			link: "tasks",
+			icon: <FaTasks />,
+		},
+		{
+			label: t("Completed"),
+			link: "completed/completed",
+			icon: <MdTaskAlt />,
+		},
+		{
+			label: t("InProgress"),
+			link: "in-progress/in progress",
+			icon: <MdOutlinePendingActions />,
+		},
+		{
+			label: t("ToDo"),
+			link: "todo/todo",
+			icon: <MdOutlinePendingActions />,
+		},
+		{
+			label: t("Team"),
+			link: "team",
+			icon: <FaUsers />,
+		},
+		{
+			label: t("Trash"),
+			link: "trashed",
+			icon: <FaTrashAlt />,
+		},
+	];
 
 	const { user } = useSelector((state: any) => state.auth)
 
@@ -63,6 +68,10 @@ export const Sidebar = () => {
 
 	// After creating roles
 	const sidebarLinks = user?.isAdmin ? linkData : linkData.slice(0, 5)
+
+	const changeLanguage = (lng: string) => {
+		i18n.changeLanguage(lng);
+	}
 
 
 	return (
@@ -83,8 +92,13 @@ export const Sidebar = () => {
 			<div className=''>
 				<button className='w-full flex gap-2 p-2 items-center text-lg text-gray-800'>
 					<MdSettings />
-					<span>Settings</span>
+					<span>{t('Settings')}</span>
+
 				</button>
+				<button className={`px-2 border-[1px] rounded-lg ${i18n.language === 'ru' ? 'bg-red-600 text-white' : ''}`}
+					onClick={() => changeLanguage('ru')}>ru</button>
+				<button className={`px-2 border-[1px] rounded-lg ${i18n.language === 'en' ? 'bg-red-600 text-white' : ''}`}
+					onClick={() => changeLanguage('en')}>en</button>
 			</div>
 		</div>
 	);

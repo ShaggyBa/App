@@ -4,6 +4,7 @@ import { useState } from "react";
 import { TaskDetailsCard } from "./TaskDetailsCard";
 import { usePostTaskActivityMutation } from "state/api/tasks";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 
 const act_types: string[] = [
@@ -21,6 +22,8 @@ export const TaskDetailsActivities = ({ activity, id, refetch }: { activity: any
 	const isLoading = false;
 	const [postTaskActivity] = usePostTaskActivityMutation()
 
+	const { t } = useTranslation()
+
 	const handleSubmit = async () => {
 		try {
 			const activityData = {
@@ -34,7 +37,7 @@ export const TaskDetailsActivities = ({ activity, id, refetch }: { activity: any
 			toast.success("Activity added: " + res.message);
 			refetch()
 		} catch (err) {
-			toast.error("Something went wrong: " + err);
+			toast.error(t("SomethingWentWrong") + err);
 		}
 	};
 

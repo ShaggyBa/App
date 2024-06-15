@@ -12,10 +12,11 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { app } from "utils/firebase"
 import { useCreateTaskMutation, useUpdateTaskMutation } from "state/api/tasks"
 import { toast } from "sonner"
-import { dateFormatter } from "utils/index"
+import { dateFormatter, translatedData } from "utils/index"
 import { createTask, updateTask } from "state/features/taskSlice"
 import { useDispatch } from "react-redux"
 import { TQueryResult } from "types/app.interface"
+import { useTranslation } from "react-i18next"
 
 
 const LISTS: string[] = ["TODO", "IN PROGRESS", "COMPLETED"];
@@ -37,6 +38,8 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 	const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues })
 
+	const { t } = useTranslation()
+
 	const [team, setTeam] = useState(task?.team || [])
 
 	const [stage, setStage] = useState(task?.stage?.toUpperCase() || LISTS[0])
@@ -54,6 +57,8 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 	const dispatch = useDispatch()
 
+	console.log(t(priority.toLowerCase(), { lng: "en" }))
+
 	const submitHandler = async (data: any) => {
 		for (const file of assets) {
 			setUploading(true)
@@ -61,7 +66,7 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 				await uploadFile(file);
 			}
 			catch (err) {
-				toast.error("Something went wrong: " + err)
+				toast.error(t("SomethingWentWrong") + err)
 			}
 			finally {
 				setUploading(false)
@@ -82,12 +87,12 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 			task?._id
 				? await updateTaskQuery({ newData, id: task?._id }).unwrap().then((res: TQueryResult) => {
 					dispatch(updateTask({ ...newData, _id: task?._id }))
-					toast.success(`${task?._id ? "Task Updated: " + res.message : "Task Created: " + res.message}`)
+					toast.success(`${task?._id ? t("TaskUpdated") + res.message : t("TaskCreated") + res.message}`)
 
 				})
 				: await createTaskQuery(newData).unwrap().then((res: TQueryResult) => {
 					dispatch(createTask({ ...newData }))
-					toast.success(`${task?._id ? "Task Updated: " + res.message : "Task Created: " + res.message}`)
+					toast.success(`${task?._id ? t("TaskUpdated") + res.message : t("TaskCreated") + res.message}`)
 
 				});
 
@@ -116,8 +121,7 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 		const uploadTask = uploadBytesResumable(storageRef, file);
 
 		return new Promise((resolve, reject) => {
-			uploadTask.on("state_changed", (snapshot) => {
-				console.log("Upload is " + (snapshot.bytesTransferred / snapshot.totalBytes) * 100 + "% done");
+			uploadTask.on("state_changed", () => {
 			}, (error) => {
 				reject(error);
 			}, () => {
@@ -139,7 +143,7 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 				as="h2"
 				className={"text-base font-bold leading-6 text-gray-900 mb-4"}
 			>
-				{task ? "Update task" : "Add task"}
+				{task ? t("UpdateTask") : t("AddTask")}
 			</Dialog.Title>
 
 			<div className="mt-2 flex flex-col gap-6">
@@ -147,9 +151,9 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 					placeholder={task?.title}
 					type="text"
 					name="title"
-					label="Task title"
+					label={t("Title")}
 					className="w-full rounded"
-					register={register("title", { required: task ? false : "Title is required" })}
+					register={register("title", { required: task ? false : `${t("Title")} ${t("IsRequired")}` })}
 					error={errors.title ? errors.title.message : ""}
 				/>
 
@@ -161,7 +165,7 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 
 				<div className="flex gap-4">
 					<SelectList
-						label="Task stage"
+						label={t("TaskStage")}
 						lists={LISTS}
 						selected={stage}
 						setSelected={setStage}
@@ -171,19 +175,20 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 						<Textbox
 							type="date"
 							name="date"
-							label="Task date"
+							label={t("Date")}
 							className="w-full rounded"
-							register={register("date", { required: task ? false : "Date is required" })}
+							register={register("date", { required: task ? false : `${t("Date")} ${t("IsRequired")}` })}
 							error={errors.date ? errors.date.message : ""}
 						/>
 					</div>
 				</div>
 
 				<div className='flex gap-4'>
+
 					<SelectList
-						label='Priority Level'
-						lists={PRIORITY}
-						selected={priority}
+						label={t('PriorityLevel')}
+						lists={translatedData(PRIORITY, t)}
+						selected={translatedData(priority, t)}
 						setSelected={setPriority}
 					/>
 
@@ -201,7 +206,7 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 								multiple={true}
 							/>
 							<BiImages />
-							<span>Add Assets</span>
+							<span>{t("AddAssets")}</span>
 						</label>
 					</div>
 				</div>
@@ -209,11 +214,11 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 				<div className='bg-gray-50 py-6 sm:flex sm:flex-row-reverse gap-4'>
 					{uploading ? (
 						<span className='text-sm py-2 text-red-500'>
-							Uploading assets
+							{t("UploadingAssets")}
 						</span>
 					) : (
 						<Button
-							label='Submit'
+							label={t('Submit')}
 							type='submit'
 							className='bg-blue-600 px-8 text-sm font-semibold text-white hover:bg-blue-700  sm:w-auto'
 						/>
@@ -223,7 +228,7 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 						type='button'
 						className='bg-white px-5 text-sm font-semibold text-gray-900 sm:w-auto'
 						onClick={() => setOpen(false)}
-						label='Cancel'
+						label={t('Cancel')}
 					/>
 				</div>
 

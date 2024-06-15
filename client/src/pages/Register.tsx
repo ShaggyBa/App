@@ -4,37 +4,53 @@ import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import Button from "components/Button"
 import FormField from "components/FormField"
-import { ILoginForm } from "types/app.interface"
+import { IRegisterForm } from "types/app.interface"
 import { setCredentials, showErrorMessage } from "state/features/authSlice"
-import { useLoginMutation } from "state/api/user"
+import { useRegisterMutation, useLoginMutation } from "state/api/user"
 import { toast } from "sonner"
 import { Loader } from "components/Loader"
 import { getErrorMessage } from "state/selectors/errors"
 import { useTranslation } from "react-i18next"
 
-const Login = () => {
-	const { t } = useTranslation()
+const Register = () => {
+
 	const { user } = useSelector((state: any) => state.auth)
+
+	const { t } = useTranslation()
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
 		reset
-	} = useForm<ILoginForm>()
+	} = useForm<IRegisterForm>()
 
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 
 	const errorMsg = useSelector(getErrorMessage)
 
-	const [login, { isLoading }] = useLoginMutation()
+	if (errorMsg.type === "error")
+		setTimeout(() => {
+			toast.info(errorMsg.text)
+		}, 100)
 
-	const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
+	const [registerQuery, { isLoading }] = useRegisterMutation()
+	const [login] = useLoginMutation()
+
+	const onSubmit: SubmitHandler<IRegisterForm> = async (data) => {
 		try {
-			const result = await login(data).unwrap()
-			dispatch(setCredentials(result))
-			navigate("/")
+			const result = await registerQuery(data).unwrap()
+			if (result.data) {
+				toast.success("Вы успешно зарегистрировались: ", result.data)
+				const log = await login({ email: data.email, password: data.password }).unwrap()
+				if (log.data) {
+					dispatch(setCredentials(log.data))
+					dispatch(showErrorMessage({ text: "", type: "" }))
+					navigate("/")
+				}
+			}
+
 		} catch (err: any) {
 			toast.error(err?.data?.message || err.message)
 		}
@@ -43,16 +59,9 @@ const Login = () => {
 
 
 	useEffect(() => {
-		if (errorMsg.type === "error") {
-			console.log(errorMsg)
-			dispatch(showErrorMessage({ text: "", type: "" }))
-			setTimeout(() => {
-				toast.info(errorMsg.text)
-			}, 100)
-		}
-
 		user && navigate('/dashboard')
 	}, [user])
+
 
 	return (
 		<div className="w-full min-h-screen flex flex-col justify-center items-center lg:flex-row bg-[#f3f4f6]">
@@ -83,15 +92,24 @@ const Login = () => {
 				<div className="w-full md:w-1/3 p-4 md:p-1 flex flex-col justify-center items-center">
 					<form
 						onSubmit={handleSubmit(onSubmit)}
-						className="form-container w-full md:w-[400px] flex flex-col gap-y-8 bg-white px-10 py-14"
+						className="form-container w-full md:w-[400px] flex flex-col gap-y-8 bg-white px-10 py-10"
 					>
 						<div className="">
-							<p className="text-blue-600 text-3xl font-bold text-center">{t('WelcomeBack')}</p>
-							<p className="text-center text-base text-gray-700 ">
-								{t('KeepCredential')}
-							</p>
+							<p className="text-blue-600 text-3xl font-bold text-center">{t('CreateNewAccount')}</p>
+
 						</div>
 						<div className="flex flex-col gap-y-5 ">
+							<FormField
+								placeholder={t('PlaceholderName')}
+								type="text"
+								name="name"
+								label={t('Name')}
+								className="w-full rounded-full"
+								register={register("name", {
+									required: "Name is required",
+								})}
+								error={errors.name ? errors.name.message : ""}
+							/>
 							<FormField
 								placeholder="mail@example.com"
 								type="email"
@@ -108,7 +126,7 @@ const Login = () => {
 								error={errors.email ? errors.email.message : ""}
 							/>
 							<FormField
-								placeholder="********"
+								placeholder={"********"}
 								type="password"
 								name="password"
 								label={t('Password')}
@@ -118,17 +136,46 @@ const Login = () => {
 
 								})}
 								error={errors.password ? errors.password.message : ""}
-
+							/>
+							<FormField
+								placeholder=""
+								type="checkbox"
+								name="isAdmin"
+								label={t('isAdmin')}
+								className="w-full rounded-full"
+								register={register("isAdmin", {
+								})}
+								error={errors.isAdmin ? errors.isAdmin.message : ""}
+							/>
+							<FormField
+								placeholder={t('Role...')}
+								type="text"
+								name="role"
+								label={t("YourRole")}
+								className="w-full rounded-full"
+								register={register("role", {
+								})}
+								error={errors.role ? errors.role.message : ""}
+							/>
+							<FormField
+								placeholder={t('Title...')}
+								type="text"
+								name="title"
+								label={t("YourTitle")}
+								className="w-full rounded-full"
+								register={register("title", {
+								})}
+								error={errors.title ? errors.title.message : ""}
 							/>
 							<span className="text-sm text-gray-500 hover:text-blue-500 hover:underline cursor-pointer">
-								<a href="/register">{t('NoAccountSignUp')}</a>
+								<a href="/login">{t('AlreadyHaveAccount')}</a>
 							</span>
 
 							{
 								!isLoading
 									? <Button
 										type="submit"
-										label={t('Login')}
+										label={t('Register')}
 										className="w-full h-10 bg-blue-700 text-white rounded-full"
 									/>
 									: <Loader />
@@ -143,4 +190,4 @@ const Login = () => {
 	)
 }
 
-export default Login
+export default Register

@@ -1,9 +1,14 @@
 import clsx from "clsx"
 import moment from "moment"
+import 'moment/locale/ru'
+import { useTranslation } from "react-i18next"
 import { IUserTableInfo } from "types/user.types"
-import { getInitials } from "utils/index"
+import { getInitials, localeMomentData } from "utils/index"
 
 export const UserTableRow = ({ user }: { user: IUserTableInfo }) => {
+
+	const { t } = useTranslation()
+
 	return <tr className="border-b border-gray-200 text-gray-600">
 		<td className="py-2">
 			<div className="flex items-center gap-3">
@@ -19,12 +24,12 @@ export const UserTableRow = ({ user }: { user: IUserTableInfo }) => {
 			</div>
 		</td>
 		<td className="py-2">
-			<p className={clsx("w-fit px-3 py-1 rounded-full text-sm", user?.isActive ? "bg-green-200" : "bg-yellow-100")}>
-				{user?.isActive ? "Active" : "Inactive"}
+			<p className={clsx("w-fit px-2 py-1 rounded-full text-xs", user?.isActive ? "bg-green-200" : "bg-yellow-100")}>
+				{user?.isActive ? t("Active") : t("Inactive")}
 			</p>
 		</td>
 		<td className="py-2 text-sm">
-			{moment(user?.createdAt).fromNow()}
+			{localeMomentData(moment(user?.createdAt).fromNow(), t)}
 		</td>
 	</tr>
 }

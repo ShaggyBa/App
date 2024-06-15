@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MdAttachFile, MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { ITask } from "types/task.types";
-import { BGS, PRIORITY_STYLES, TASK_TYPE, formatDate } from "utils/index";
+import { BGS, PRIORITY_STYLES, TASK_TYPE, formatDate, translatedTaskData } from "utils/index";
 import { TaskSettingsBar } from "../TaskSettings/TaskSettingsBar";
 import { BiMessageAltDetail } from "react-icons/bi";
 import { FaList } from "react-icons/fa";
@@ -11,6 +11,7 @@ import { UserInfo } from "components/UserInfo";
 import { IoMdAdd } from "react-icons/io";
 import { AddSubTask } from "./AddSubTask";
 import { useDrag } from "react-dnd";
+import { useTranslation } from "react-i18next";
 
 
 const ICONS: { [key: string]: JSX.Element } = {
@@ -32,6 +33,9 @@ type Props = {
 export const TaskCard = ({ task, setSelectedTask, setOpenSubTask, setOpenEdit, openDeleteDialog, duplicateHandler }: Props) => {
 
 	const { user } = useSelector((state: any) => state.auth)
+
+	const { i18n, t } = useTranslation()
+
 	const [isOpen, setIsOpen] = useState(false)
 
 	const [collected, drag, dragPreview] = useDrag({
@@ -54,7 +58,7 @@ export const TaskCard = ({ task, setSelectedTask, setOpenSubTask, setOpenEdit, o
 				}
 				>
 					<span className="text-lg">{ICONS[task?.priority]}</span>
-					<span className="uppercase">{task?.priority} Priority</span>
+					<span className="uppercase">{translatedTaskData(task, t).priority} {i18n.language === 'ru' ? "приоритет" : 'priority'}</span>
 				</div>
 				{user?.isAdmin && <TaskSettingsBar
 					task={task}
@@ -69,7 +73,7 @@ export const TaskCard = ({ task, setSelectedTask, setOpenSubTask, setOpenEdit, o
 			<>
 				<div className="flex items-center gap-2">
 					<div className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task?.stage])} />
-					<h4 className="line-clamp-1 text-black">{task?.title}</h4>
+					<h4 className="line-clamp-1 text-black"><a href={`/task/${task._id}`}>{task?.title}</a></h4>
 				</div>
 				<span className="text-sm text-gray-600">
 					{formatDate(new Date(task?.date))}
@@ -129,7 +133,7 @@ export const TaskCard = ({ task, setSelectedTask, setOpenSubTask, setOpenEdit, o
 					})
 
 					: <div className="py-4 border-t border-gray-200">
-						<span className="text-gray-500">No subtasks</span>
+						<span className="text-gray-500">{t("NoSubtasks")}</span>
 					</div>
 			}
 
@@ -140,7 +144,7 @@ export const TaskCard = ({ task, setSelectedTask, setOpenSubTask, setOpenEdit, o
 					className="w-full flex gap-4 items-center text-sm text-gray-500 font-semibold disabled:cursor-not-allowed disabled:text-gray-300"
 				>
 					<IoMdAdd className="text-lg" />
-					<span>Add subtask</span>
+					<span>{t("AddSubtask")}</span>
 				</button>
 			</div>
 

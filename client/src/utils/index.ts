@@ -1,4 +1,4 @@
-import { TPriority, TStage } from "types/task.types";
+import { ITask, TPriority, TStage } from "types/task.types";
 
 export const formatDate = (date: Date) => {
 	// Get the month, day, and year
@@ -56,3 +56,38 @@ export const BGS = [
 	"bg-red-600",
 	"bg-green-600",
 ];
+
+export const localeMomentData = (data: string, t: any) => {
+	if (data.split("months ago").length > 1) {
+		return `${data.split("months ago")[0]} ${t("monthsAgo")}`
+	}
+	else if (data.split("a month ago").length > 1) {
+		return `${data.split("a month ago")[0]} ${t("monthAgo")}`
+	}
+	else if (data.split("days ago").length > 1) {
+		return `${data.split("days ago")[0]} ${t("daysAgo")}`
+	}
+	else if (data.split("a day ago").length > 1) {
+		return `${data.split("a day ago")[0]} ${t("dayAgo")}`
+	}
+	else if (data.split("hours ago").length > 1) {
+		return `${data.split("hours ago")[0]} ${t("hoursAgo")}`
+	}
+
+	return data
+}
+
+export const translatedTaskData = (task: ITask, t: any) => {
+
+	return {
+		...task,
+		priority: t(task.priority) || task.priority,
+	}
+}
+
+export const translatedData = (data: string | string[], t: any) => {
+	if (typeof data === "string")
+		return t(data) || data
+
+	return data.map((el: string) => t(el.toLowerCase()).toUpperCase() || el)
+}

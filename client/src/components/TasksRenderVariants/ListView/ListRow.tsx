@@ -5,8 +5,9 @@ import { BiMessageAltDetail } from "react-icons/bi";
 import { FaList } from "react-icons/fa";
 import { MdAttachFile } from "react-icons/md";
 import { ITask } from "types/task.types";
-import { TASK_TYPE, formatDate, BGS, PRIORITY_STYLES } from "utils/index";
+import { TASK_TYPE, formatDate, BGS, PRIORITY_STYLES, translatedTaskData } from "utils/index";
 import { MdKeyboardDoubleArrowUp, MdKeyboardArrowUp, MdKeyboardArrowDown } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 const ICONS: { [key: string]: JSX.Element } = {
 	high: <MdKeyboardDoubleArrowUp />,
@@ -29,6 +30,8 @@ export const ListRow = ({ task, setOpenDialog, setSelectedTask, setOpenEdit }: {
 		setOpenEdit(true)
 	}
 
+	const { i18n, t } = useTranslation()
+
 	return <tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-300/10'>
 		<td className='py-2'>
 			<div className='flex items-center gap-2'>
@@ -36,7 +39,7 @@ export const ListRow = ({ task, setOpenDialog, setSelectedTask, setOpenEdit }: {
 					className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])}
 				/>
 				<p className='w-full line-clamp-2 text-base text-black'>
-					{task?.title}
+					<a href={`/task/${task._id}`}>{task?.title}</a>
 				</p>
 			</div>
 		</td>
@@ -47,7 +50,7 @@ export const ListRow = ({ task, setOpenDialog, setSelectedTask, setOpenEdit }: {
 					{ICONS[task?.priority]}
 				</span>
 				<span className='capitalize line-clamp-1'>
-					{task?.priority} Priority
+					{translatedTaskData(task, t).priority} {i18n.language === 'ru' ? "приоритет" : 'priority'}
 				</span>
 			</div>
 		</td>
@@ -94,14 +97,14 @@ export const ListRow = ({ task, setOpenDialog, setSelectedTask, setOpenEdit }: {
 		<td className='py-2 flex gap-2 md:gap-4 justify-end'>
 			<Button
 				className='text-red-600 hover:text-red-500 sm:px-0 text-sm md:text-base'
-				label='Edit'
+				label={t("Edit")}
 				type='button'
 				onClick={() => onHandleOpenEdit(task)}
 			/>
 
 			<Button
 				className='text-purple-700 hover:text-purple-500 sm:px-0 text-sm md:text-base'
-				label='Delete'
+				label={t("Delete")}
 				type='button'
 				onClick={() => onHandleOpenDialog(task)}
 			/>

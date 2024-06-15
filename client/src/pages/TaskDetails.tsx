@@ -53,7 +53,7 @@ const TaskDetails = () => {
 			: <div className='w-full flex flex-col gap-3 mb-4 overflow-y-hidden'>
 				<h1 className='text-2xl text-gray-600 font-bold'>{task?.title}</h1>
 
-				<Tabs tabs={TABS} setSelected={setSelected}>
+				<Tabs tabs={TABS} selectedView={selected} setSelected={setSelected}>
 					{selected === 0 ? (
 						<>
 							<div className='w-full flex flex-col md:flex-row gap-5 2xl:gap-8 bg-white shadow-md p-8 overflow-y-auto'>

@@ -3,10 +3,13 @@ import { setOpenSidebar } from "state/features/authSlice";
 import { MdOutlineSearch } from "react-icons/md";
 import { UserAvatar } from "components/UserAvatar";
 import { NotificationPanel } from "components/NotificationPanel";
+import { useTranslation } from "react-i18next";
 
 export const Navbar = () => {
 
 	// const {user} = useSelector((state: any) => state.auth)
+
+	const { t } = useTranslation()
 
 	const dispatch = useDispatch()
 
@@ -26,7 +29,7 @@ export const Navbar = () => {
 					<MdOutlineSearch className={"text-gray-500 text-xl"} />
 					<input
 						type="search"
-						placeholder={"Search..."}
+						placeholder={t("Search...")}
 						className={"flex-1 outline-none bg-transparent placeholder:text-gray-500 text-gray-800"}
 					/>
 				</div>

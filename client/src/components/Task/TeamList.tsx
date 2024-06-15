@@ -1,6 +1,7 @@
 import { Listbox, Transition } from "@headlessui/react"
 import clsx from "clsx"
 import { Fragment, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { BsChevronExpand, BsX } from "react-icons/bs"
 import { MdCheck } from "react-icons/md"
 import { useGetTeamUsersQuery } from "state/api/actionsUser"
@@ -10,6 +11,8 @@ import { getInitials } from "utils/index"
 export const TeamList = ({ team, setTeam }: { team: TUser[], setTeam: any }) => {
 
 	const { data } = useGetTeamUsersQuery()
+
+	const { t } = useTranslation()
 
 	const [selectedUsers, setSelectedUsers] = useState<TUser[]>(team)
 
@@ -31,7 +34,7 @@ export const TeamList = ({ team, setTeam }: { team: TUser[], setTeam: any }) => 
 
 	return (
 		<div>
-			<p className='text-gray-700'>Assign Task To: </p>
+			<p className='text-gray-700'>{t("AssignTaskTo")}</p>
 			<Listbox
 				value={selectedUsers}
 				onChange={(el) => handleChange(el)}

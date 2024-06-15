@@ -1,5 +1,6 @@
 import { TaskCard } from "components/Task/TaskCard";
 import { useDrop } from "react-dnd";
+import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { useUpdateTaskMutation } from "state/api/tasks";
@@ -20,6 +21,8 @@ type Props = {
 export const BoardColumn = ({ columnId, openDeleteDialog, setOpenSubTask, setOpenEdit, setSelectedTask, duplicateHandler, tasks }: Props) => {
 
 	const [updateTaskQuery] = useUpdateTaskMutation()
+
+	const { t } = useTranslation()
 
 	const dispatch = useDispatch()
 	//@ts-ignore
@@ -43,7 +46,7 @@ export const BoardColumn = ({ columnId, openDeleteDialog, setOpenSubTask, setOpe
 
 			}
 			catch (err) {
-				toast.error("Something went wrong: " + err)
+				toast.error(t("SomethingWentWrong") + err)
 			}
 		},
 	});

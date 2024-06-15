@@ -18,6 +18,7 @@ import { useLogoutMutation } from "state/api/user"
 import { useNavigate } from "react-router-dom"
 import { useStore } from "react-redux"
 import { logout } from "../state/features/authSlice"
+import { useTranslation } from "react-i18next"
 
 
 
@@ -33,6 +34,8 @@ type TStats = {
 
 const Dashboard = () => {
 
+	const { t } = useTranslation()
+
 	const [totals, setTotals] = useState<any>({})
 
 	const { data: fetchedData, error, isLoading } = useGetDashboardStatisticsQuery()
@@ -46,7 +49,7 @@ const Dashboard = () => {
 	const stats: TStats[] = totals ? [
 		{
 			_id: "1",
-			label: "TOTAL TASK",
+			label: t("TotalTasks").toUpperCase(),
 			total: totals?.totalTasks || 0,
 			icon: <FaNewspaper />,
 			bg: "bg-[#1d4ed8]",
@@ -54,7 +57,7 @@ const Dashboard = () => {
 		},
 		{
 			_id: "2",
-			label: "COMPLETED TASK",
+			label: t("CompletedTasks").toUpperCase(),
 			total: totals?.tasks?.completed || 0,
 			icon: <MdAdminPanelSettings />,
 			bg: "bg-[#0f766e]",
@@ -62,7 +65,7 @@ const Dashboard = () => {
 		},
 		{
 			_id: "3",
-			label: "TASK IN PROGRESS ",
+			label: t("InProgressTasks").toUpperCase(),
 			total: totals?.tasks?.["in progress"] || 0,
 			icon: <LuClipboardEdit />,
 			bg: "bg-[#f59e0b]",
@@ -70,7 +73,7 @@ const Dashboard = () => {
 		},
 		{
 			_id: "4",
-			label: "TODOS",
+			label: t("ToDosTasks").toUpperCase(),
 			total: totals?.tasks?.todo || 0,
 			icon: <FaArrowsToDot />,
 			bg: "bg-[#be185d]" || 0,
@@ -85,7 +88,6 @@ const Dashboard = () => {
 			navigate("/login")
 		}
 		setTotals(fetchedData?.body || {})
-		// console.log(fetchedData)
 	}, [fetchedData])
 
 	return (
@@ -105,7 +107,7 @@ const Dashboard = () => {
 				}
 			</div>
 			<div className="w-full bg-white my-16 p-4 rounded shadow-sm">
-				<h4 className="text-xl text-gray-600 font-semibold">Your chart</h4>
+				<h4 className="text-xl text-gray-600 font-semibold">{t("YourChart")}</h4>
 				<Chart data={totals?.graphData} />
 			</div>
 

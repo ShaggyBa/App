@@ -3,6 +3,15 @@ export interface ILoginForm {
 	password: string
 }
 
+export interface IRegisterForm {
+	name: string,
+	email: string,
+	password: string,
+	isAdmin?: boolean,
+	role: 'developer' | 'teamlead' | 'admin',
+	title: string
+}
+
 export type TUser = {
 	_id: string
 	name: string

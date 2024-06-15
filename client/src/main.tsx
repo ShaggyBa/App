@@ -9,11 +9,15 @@ import './index.css'
 
 import { store } from './state/store.ts'
 
+import { withTranslation } from 'react-i18next';
+
+const AppWithTranslation = withTranslation()(App);
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<Provider store={store}>
 			<BrowserRouter>
-				<App />
+				<AppWithTranslation />
 			</BrowserRouter>
 		</Provider>
 	</React.StrictMode>,

@@ -6,6 +6,7 @@ import { SelectList } from "components/Task/SelectList";
 import { Textbox } from "components/TextBox";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useUpdateUserProfileMutation } from "state/api/actionsUser";
@@ -24,6 +25,8 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 
 
 	const { user } = useSelector((state: any) => state.auth);
+
+	const { t } = useTranslation()
 
 	const dispatch = useDispatch()
 
@@ -65,7 +68,7 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 			}, 500);
 		}
 		catch (err: any) {
-			toast.error("Something went wrong: " + err.message)
+			toast.error(t("SomethingWentWrong") + err.message)
 		}
 
 	};

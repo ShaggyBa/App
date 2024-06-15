@@ -6,6 +6,7 @@ import { ListHead } from "components/TrashList/ListHead";
 import { ListRow } from "components/TrashList/ListRow";
 import { AddUserForm } from "components/UsersList/AddUserForm";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	MdDelete,
 	MdOutlineRestore,
@@ -25,6 +26,8 @@ const Trash = () => {
 	const [tasks, setTasks] = useState<ITask[] | undefined>([] as ITask[]);
 
 	const { data, isLoading, refetch } = useGetAllTasksQuery({ strQuery: "", isTrashed: "true", search: "" })
+
+	const { t } = useTranslation()
 
 	const [deleteOrRestoreTask] = useDeleteOrRestoreTaskMutation();
 
@@ -82,7 +85,7 @@ const Trash = () => {
 				refetch()
 			}, 500)
 		} catch (err) {
-			toast.error("Something went wrong: " + err)
+			toast.error(t("SomethingWentWrong") + err)
 		}
 	}
 

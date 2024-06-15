@@ -17,6 +17,7 @@ import { toast } from "sonner"
 import { ConfirmationWindow } from "components/TaskSettings/ConfirmationWindow"
 import { useDispatch } from "react-redux"
 import { getTasks } from "state/features/taskSlice"
+import { useTranslation } from "react-i18next"
 
 type TTabs = {
 	title: string,
@@ -26,11 +27,6 @@ type TTabs = {
 type TTask_Type = {
 	[key: string]: string
 }
-
-const TabsData: TTabs[] = [
-	{ title: "Board View", icon: <MdGridView /> },
-	{ title: "List View", icon: <FaList /> }
-]
 
 
 const TaskType: TTask_Type = {
@@ -45,7 +41,7 @@ const Tasks = () => {
 
 	const dispatch = useDispatch()
 
-	const [selectedView, setSelectedView] = useState({})
+	const [selectedView, setSelectedView] = useState(0)
 
 	const [selectedTask, setSelectedTask] = useState<ITask | undefined>({} as ITask)
 
@@ -55,6 +51,8 @@ const Tasks = () => {
 	const status = params?.status || ""
 
 	const { data, isLoading } = useGetAllTasksQuery({ strQuery: status, isTrashed: "", search: "" })
+
+	const { t } = useTranslation()
 
 	const [trashTask] = useTrashTaskMutation()
 	const [duplicateTask] = useDuplicateTaskMutation()
@@ -71,7 +69,7 @@ const Tasks = () => {
 			}, 500)
 		}
 		catch (err) {
-			toast.error("Something went wrong: " + err)
+			toast.error(t("SomethingWentWrong") + err)
 		}
 	}
 
@@ -87,7 +85,7 @@ const Tasks = () => {
 			}, 500)
 		}
 		catch (err) {
-			toast.error("Something went wrong: " + err)
+			toast.error(t("SomethingWentWrong") + err)
 		}
 	}
 
@@ -98,11 +96,29 @@ const Tasks = () => {
 	}, [data])
 
 
+	const currentTaskStatus = (status: string) => {
+		switch (status) {
+			case "todo":
+				return t("ToDosTasks")
+			case "in progress":
+				return t("InProgressTasks")
+			case "completed":
+				return t("CompletedTasks")
+			default:
+				return t("Tasks")
+		}
+	}
+
+	const TabsData: TTabs[] = [
+		{ title: t("BoardView"), icon: <MdGridView /> },
+		{ title: t("ListView"), icon: <FaList /> }
+	]
+
 	return isLoading
 		? <div className="py-10"><Loader /></div>
 		: <div className="w-full h-full">
 			<div className="flex items-center justify-between mb-4">
-				<Title title={status ? `${status} tasks` : "Tasks"} />
+				<Title title={currentTaskStatus(status)} />
 
 				{
 					!status
@@ -111,7 +127,7 @@ const Tasks = () => {
 							setSelectedTask(undefined)
 							setOpen(true)
 						}}
-						label="Create Task"
+						label={t("CreateTask")}
 						icon={<IoMdAdd className="text-lg" />}
 						className={"flex flex-row-reverse gap-1 items-center bg-red-600 text-white rounded-md py-2 2xl:py-2.5"}
 
@@ -123,22 +139,26 @@ const Tasks = () => {
 				{!status ?
 					<Tabs
 						tabs={TabsData}
+						selectedView={selectedView}
 						setSelected={setSelectedView}
 					>
-						<div className="w-full flex justify-between gap-4 md:gap-x-12 py-4">
-							<TaskTitle
-								label="To Do"
-								className={TaskType.todo}
-							/>
-							<TaskTitle
-								label="In progress"
-								className={TaskType["in progress"]}
-							/>
-							<TaskTitle
-								label="Completed"
-								className={TaskType.completed}
-							/>
-						</div>
+						{
+							selectedView === 0 ? <div className="w-full flex justify-between gap-4 md:gap-x-12 py-4">
+								<TaskTitle
+									label={t("ToDo")}
+									className={TaskType.todo}
+								/>
+								<TaskTitle
+									label={t("InProgress")}
+									className={TaskType["in progress"]}
+								/>
+								<TaskTitle
+									label={t("Completed")}
+									className={TaskType.completed}
+								/>
+							</div>
+								: <></>
+						}
 
 
 						{

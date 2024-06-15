@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { logout } from "state/features/authSlice";
 import { AddUserForm } from "./UsersList/AddUserForm";
 import { ChangePassword } from "./ChangePassword";
+import { useTranslation } from "react-i18next";
 
 export const UserAvatar = () => {
 
@@ -20,6 +21,7 @@ export const UserAvatar = () => {
 
 	const { user } = useSelector((state: any) => state.auth)
 
+	const { t } = useTranslation()
 
 	const [logoutUser] = useLogoutMutation()
 
@@ -72,7 +74,7 @@ export const UserAvatar = () => {
 											)}
 										>
 											<FaUser className={"mr-2"} aria-hidden={"true"} />
-											Profile
+											{t("Profile")}
 										</button>
 									)}
 
@@ -85,7 +87,7 @@ export const UserAvatar = () => {
 											)}
 										>
 											<FaUserLock className={"mr-2"} aria-hidden={"true"} />
-											Change password
+											{t("ChangePassword")}
 										</button>
 									)}
 
@@ -98,7 +100,7 @@ export const UserAvatar = () => {
 											)}
 										>
 											<IoLogOutOutline className={"mr-2"} aria-hidden={"true"} />
-											Logout
+											{t("Logout")}
 										</button>
 									)}
 

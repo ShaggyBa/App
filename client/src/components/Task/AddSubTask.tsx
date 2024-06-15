@@ -5,6 +5,7 @@ import { ModalWrapper } from "components/ModalWrapper";
 import { Textbox } from "components/TextBox";
 import { useCreateSubTaskMutation } from "state/api/tasks";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any, id?: string }) => {
 	const {
@@ -15,6 +16,8 @@ export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any,
 
 	const [addSubTask] = useCreateSubTaskMutation();
 
+	const { t } = useTranslation()
+
 	const handleOnSubmit = async (data: any) => {
 		try {
 			const res = await addSubTask({ data, id }).unwrap();
@@ -24,7 +27,7 @@ export const AddSubTask = ({ open, setOpen, id }: { open: boolean, setOpen: any,
 				setOpen(false);
 			}, 500);
 		} catch (err) {
-			toast.error("Something went wrong: " + err);
+			toast.error(t("SomethingWentWrong") + err);
 		}
 	};
 

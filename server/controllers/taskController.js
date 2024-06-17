@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Notification from "../models/Notification.js";
 import Task from "../models/Task.js";
 import User from "../models/User.js";
@@ -38,8 +39,9 @@ export const createTask = async (req, res) => {
 			text,
 			task: task._id,
 		});
+		const createdTaskData = await Task.findById(new mongoose.Types.ObjectId(task._id)).populate({ path: "team", select: "name title role email" });
 
-		res.status(200).json({ status: true, task, message: "Task created successfully." });
+		res.status(200).json({ status: true, createdTaskData, message: "Task created successfully." });
 
 	} catch (error) {
 		return res.status(400).json({ status: false, message: error.message });
@@ -272,7 +274,12 @@ export const updateTask = async (req, res) => {
 		task.stage = stage.toLowerCase();
 
 		// Find users added to the team
-		const newTeamMembers = team.filter(user => !task.team.some(existingUser => existingUser._id.toString() === user._id.toString()));
+		const newTeamMembers = team.filter(user => {
+			return !task.team.some(existingUser => {
+				console.log(existingUser._id, user)
+				return existingUser._id.toString() === user._id.toString()
+			})
+		});
 		// Update task and create notifications in parallel
 		await Promise.all([
 			...newTeamMembers.map(async (user) => {
@@ -286,7 +293,9 @@ export const updateTask = async (req, res) => {
 			task.save(),
 		]);
 
-		res.status(200).json({ status: true, message: "Task updated successfully." });
+		const updatedTaskData = await Task.findById(task._id).populate({ path: "team", select: "name title role email" });
+
+		res.status(200).json({ status: true, updatedTaskData, message: "Task updated successfully." });
 	} catch (error) {
 		return res.status(400).json({ status: false, message: error.message });
 	}

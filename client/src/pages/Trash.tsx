@@ -59,26 +59,26 @@ const Trash = () => {
 
 	const deleteRestoreHandler = async () => {
 		try {
-			let res
 			switch (type) {
 				case "delete":
-					res = await deleteOrRestoreTask({ id: selected, actionType: "delete" }).unwrap()
+					await deleteOrRestoreTask({ id: selected, actionType: "delete" }).unwrap()
+					toast.success(t("TaskDeletedSuccessfullyMsg"))
 					break;
 				case "restore":
-					res = await deleteOrRestoreTask({ id: selected, actionType: "restore" }).unwrap()
+					await deleteOrRestoreTask({ id: selected, actionType: "restore" }).unwrap()
+					toast.success(t("TaskRestoredSuccessfullyMsg"))
 					break;
 				case "deleteAll":
-					res = await deleteOrRestoreTask({ id: "", actionType: "deleteAll" }).unwrap()
+					await deleteOrRestoreTask({ id: "", actionType: "deleteAll" }).unwrap()
 					break;
 				case "restoreAll":
-					res = await deleteOrRestoreTask({ id: "", actionType: "restoreAll" }).unwrap()
+					await deleteOrRestoreTask({ id: "", actionType: "restoreAll" }).unwrap()
 					break;
 
 				default:
 					break;
 			}
 
-			toast.success(type === "delete" ? t("TaskDeletedSuccessfullyMsg") + res?.message : t("TaskRestoredSuccessfullyMsg") + res?.message)
 
 			setTimeout(() => {
 				setOpenDialog(false)

@@ -134,7 +134,6 @@ export const AddUserForm = ({ open, setOpen, selectedUser, refetchRequest }: { o
 							lists={["developer", "teamlead", "admin"]}
 							selected={selectedPermission}
 							setSelected={setSelectedPermission}
-
 						/>
 					</div>
 

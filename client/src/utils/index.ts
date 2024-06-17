@@ -28,6 +28,9 @@ export function dateFormatter(dateString: string | Date) {
 }
 
 export function getInitials(fullName: string) {
+	if (!fullName) {
+		return "U";
+	}
 	const names = fullName.trim().split(" ");
 
 	if (names.length === 1) return names[0][0].toUpperCase();

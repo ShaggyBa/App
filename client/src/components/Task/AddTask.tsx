@@ -12,14 +12,13 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { app } from "utils/firebase"
 import { useCreateTaskMutation, useUpdateTaskMutation } from "state/api/tasks"
 import { toast } from "sonner"
-import { dateFormatter, translatedData } from "utils/index"
+import { dateFormatter } from "utils/index"
 import { createTask, updateTask } from "state/features/taskSlice"
 import { useDispatch } from "react-redux"
-import { TQueryResult } from "types/app.interface"
 import { useTranslation } from "react-i18next"
 
 
-const LISTS: string[] = ["Todo", "InProgress", "Completed"];
+const LISTS: string[] = ["todo", "in progress", "completed"];
 const PRIORITY: string[] = ["high", "medium", "normal", "low"];
 
 const uploadedFileURLs: string[] = [];
@@ -84,15 +83,17 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 				priority
 			}
 
+
 			task?._id
-				? await updateTaskQuery({ newData, id: task?._id }).unwrap().then((res: TQueryResult) => {
-					dispatch(updateTask({ ...newData, _id: task?._id }))
-					toast.success(`${task?._id ? t("TaskUpdated") + res.message : t("TaskCreated") + res.message}`)
+				? await updateTaskQuery({ newData, id: task?._id }).unwrap().then((res: any) => {
+
+					dispatch(updateTask({ ...res.updatedTaskData }))
+					toast.success(`${task?._id ? t("TaskUpdated") : t("TaskCreated")}`)
 
 				})
-				: await createTaskQuery(newData).unwrap().then((res: TQueryResult) => {
-					dispatch(createTask({ ...newData }))
-					toast.success(`${task?._id ? t("TaskUpdated") + res.message : t("TaskCreated") + res.message}`)
+				: await createTaskQuery(newData).unwrap().then((res: any) => {
+					dispatch(createTask({ ...res.createdTaskData }))
+					toast.success(`${task?._id ? t("TaskUpdated") : t("TaskCreated")}`)
 
 				});
 
@@ -103,7 +104,7 @@ export const AddTask = ({ open, setOpen, task }: { open: boolean, setOpen: any, 
 			}, 500)
 		}
 		catch (err) {
-			toast.error(`Error while ${task?._id ? "updating" : "creating"} task: ` + err)
+			task?._id ? toast.error(t("ErrorUpdatingTaskMsg") + err) : toast.error(t("ErrorCreatingTaskMsg") + err)
 		}
 	}
 

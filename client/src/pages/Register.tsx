@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
@@ -11,10 +11,13 @@ import { toast } from "sonner"
 import { Loader } from "components/Loader"
 import { getErrorMessage } from "state/selectors/errors"
 import { useTranslation } from "react-i18next"
+import { SelectList } from "components/Task/SelectList"
 
 const Register = () => {
 
 	const { user } = useSelector((state: any) => state.auth)
+
+	const [selectedPermission, setSelectedPermission] = useState<string>("developer")
 
 	const { t } = useTranslation()
 
@@ -40,16 +43,18 @@ const Register = () => {
 
 	const onSubmit: SubmitHandler<IRegisterForm> = async (data) => {
 		try {
-			const result = await registerQuery(data).unwrap()
-			if (result.data) {
-				toast.success("Вы успешно зарегистрировались: ", result.data)
-				const log = await login({ email: data.email, password: data.password }).unwrap()
-				if (log.data) {
-					dispatch(setCredentials(log.data))
-					dispatch(showErrorMessage({ text: "", type: "" }))
+			const result = await registerQuery({ ...data, role: selectedPermission, isAdmin: selectedPermission === 'admin' ? true : false }).unwrap()
+			toast.success(t("SuccessRegisterMsg"))
+
+			const log = await login({ email: data.email, password: data.password }).unwrap()
+			if (log._id === result._id) {
+				dispatch(setCredentials(log))
+				dispatch(showErrorMessage({ text: "", type: "" }))
+				setTimeout(() => {
 					navigate("/")
-				}
+				}, 100)
 			}
+
 
 		} catch (err: any) {
 			toast.error(err?.data?.message || err.message)
@@ -137,26 +142,15 @@ const Register = () => {
 								})}
 								error={errors.password ? errors.password.message : ""}
 							/>
-							<FormField
-								placeholder=""
-								type="checkbox"
-								name="isAdmin"
-								label={t('isAdmin')}
-								className="w-full rounded-full"
-								register={register("isAdmin", {
-								})}
-								error={errors.isAdmin ? errors.isAdmin.message : ""}
+
+							<SelectList
+								label={t("Permission")}
+								lists={["developer", "teamlead", "admin"]}
+								selected={selectedPermission}
+								setSelected={setSelectedPermission}
 							/>
-							<FormField
-								placeholder={t('Role...')}
-								type="text"
-								name="role"
-								label={t("YourRole")}
-								className="w-full rounded-full"
-								register={register("role", {
-								})}
-								error={errors.role ? errors.role.message : ""}
-							/>
+
+
 							<FormField
 								placeholder={t('Title...')}
 								type="text"

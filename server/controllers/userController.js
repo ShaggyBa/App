@@ -10,7 +10,7 @@ export const registerUser = async (req, res) => {
 		if (userExist) {
 			return res.status(400).json({
 				status: false,
-				message: "User already exist"
+				message: "Пользователь с данным email уже существует"
 			})
 		}
 
@@ -19,7 +19,7 @@ export const registerUser = async (req, res) => {
 			email,
 			password,
 
-			isAdmin: (role === "admin" || role === "superadmin") ? true : false,
+			isAdmin: (role === "admin") ? true : false,
 			role,
 			title
 		})
@@ -32,7 +32,7 @@ export const registerUser = async (req, res) => {
 			res.status(201).json(user)
 		}
 		else {
-			return res.status(400).json({ status: false, message: "Invalid user data" })
+			return res.status(400).json({ status: false, message: "Неккоректные данные" })
 		}
 
 	} catch (err) {
@@ -46,11 +46,11 @@ export const loginUser = async (req, res) => {
 
 		const user = await User.findOne({ email })
 		if (!user) {
-			return res.status(401).json({ status: false, message: "Invalid email or password." })
+			return res.status(401).json({ status: false, message: "Некорректный email или пароль." })
 		}
 
 		if (!user?.isActive) {
-			return res.status(401).json({ status: false, message: "User is not active and has been deactivated." })
+			return res.status(401).json({ status: false, message: "Пользователь неактивен и был деактивирован." })
 		}
 
 		const isMatch = await user.matchPassword(password)
@@ -63,7 +63,7 @@ export const loginUser = async (req, res) => {
 			res.status(200).json(user)
 		}
 		else {
-			return res.status(401).json({ status: false, message: "Invalid email or password." })
+			return res.status(401).json({ status: false, message: "Некорректный email или пароль." })
 		}
 
 	} catch (err) {
@@ -77,7 +77,7 @@ export const logoutUser = async (req, res) => {
 			httpOnly: true,
 			expires: new Date(0),
 		})
-		res.status(200).json({ status: true, message: 'Logout successfully.' })
+		res.status(200).json({ status: true, message: 'Успешный выход из системы.' })
 	} catch (err) {
 		return res.status(400).json({ status: false, message: err.message })
 	}

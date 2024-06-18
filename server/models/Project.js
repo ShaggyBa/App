@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
-	createdBy: {
+	owner: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 		required: true
@@ -10,7 +10,7 @@ const projectSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	participants: [{
+	team: [{
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
@@ -24,7 +24,6 @@ const projectSchema = new mongoose.Schema({
 		},
 		roleName: {
 			type: String,
-			required: true
 		},
 		roleDescription: {
 			type: String
@@ -32,43 +31,40 @@ const projectSchema = new mongoose.Schema({
 	}],
 	tasks: [{
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Task'
+		ref: 'Task',
 	}],
-	status: {
-		type: String,
-		enum: ['in_progress', 'completed', 'cancelled'],
-		default: 'in_progress'
-	},
-	customTaskCards: {
-		type: [{
-			name: {
-				type: String,
-				required: true,
-				unique: true
-			},
-			color: {
-				type: String,
-				enum: ['red', 'blue', 'green', 'orange', 'purple', 'yellow'],
-				default: 'blue'
-			},
-		}],
-		validate: [cardsLimit, 'Maximum number of cards reached']
-	},
-	customCategories: {
-		type: [{
-			name: {
-				type: String,
-				required: true,
-				unique: true
-			},
-			color: {
-				type: String,
-				enum: ['red', 'blue', 'green', 'orange', 'purple', 'yellow'],
-				default: 'blue'
-			},
-		}],
-		validate: [categoriesLimit, 'Maximum number of categories reached']
-	}
+
+	//! На потом
+	// customTaskCards: {
+	// 	type: [{
+	// 		name: {
+	// 			type: String,
+	// 			required: true,
+	// 			unique: true
+	// 		},
+	// 		color: {
+	// 			type: String,
+	// 			enum: ['red', 'blue', 'green', 'orange', 'purple', 'yellow'],
+	// 			default: 'blue'
+	// 		},
+	// 	}],
+	// 	validate: [cardsLimit, 'Maximum number of cards reached']
+	// },
+	// customCategories: {
+	// 	type: [{
+	// 		name: {
+	// 			type: String,
+	// 			required: true,
+	// 			unique: true
+	// 		},
+	// 		color: {
+	// 			type: String,
+	// 			enum: ['red', 'blue', 'green', 'orange', 'purple', 'yellow'],
+	// 			default: 'blue'
+	// 		},
+	// 	}],
+	// 	validate: [categoriesLimit, 'Maximum number of categories reached']
+	// }
 },
 	{
 		timestamps: true

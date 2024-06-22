@@ -2,12 +2,23 @@ import mongoose from "mongoose";
 import Notification from "../models/Notification.js";
 import Task from "../models/Task.js";
 import User from "../models/User.js";
+import Project from "../models/Project.js";
+import { hasProjectAccess } from "../utils/index.js";
 
 export const createTask = async (req, res) => {
 	try {
 		const { userId } = req.user;
 
 		const { title, team, stage, date, priority, assets } = req.body;
+
+		const project = await Project.findById(req.projectId);
+		if (!project) {
+			return res.status(404).json({ message: 'Проект не найден' });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ message: 'Доступ к проекту запрещен' });
+		}
 
 		let text = "New task - " + title + " has been assigned to you";
 		if (team?.length > 1) {
@@ -32,14 +43,19 @@ export const createTask = async (req, res) => {
 			priority: priority.toLowerCase(),
 			assets,
 			activities: activity,
+			projectId: req.projectId,
 		});
+
+		project.tasks.push(task._id);
+		await project.save();
+		await task.save()
 
 		await Notification.create({
 			team,
 			text,
 			task: task._id,
 		});
-		const createdTaskData = await Task.findById(new mongoose.Types.ObjectId(task._id)).populate({ path: "team", select: "name title role email" });
+		const createdTaskData = await Task.findById(task._id).populate({ path: "team", select: "name title role email" });
 
 		res.status(200).json({ status: true, createdTaskData, message: "Task created successfully." });
 
@@ -54,18 +70,30 @@ export const duplicateTask = async (req, res) => {
 
 		const task = await Task.findById(id);
 
+		const project = await Project.findById(req.projectId);
+		if (!project) {
+			return res.status(404).json({ message: 'Проект не найден' });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ message: 'Доступ к проекту запрещен' });
+		}
+
 		const newTask = await Task.create({
 			...task,
+			projectId: task.projectId,
+			team: task.team,
+			subTasks: task.subTasks,
+			assets: task.assets,
+			priority: task.priority,
+			stage: task.stage,
 			title: task.title + " - Duplicate",
 		});
 
-		newTask.team = task.team;
-		newTask.subTasks = task.subTasks;
-		newTask.assets = task.assets;
-		newTask.priority = task.priority;
-		newTask.stage = task.stage;
-
 		await newTask.save();
+
+		project.tasks.push(newTask._id);
+		await project.save();
 
 		//alert users of the task
 		let text = "New task has been assigned to you. ";
@@ -98,6 +126,17 @@ export const postTaskActivity = async (req, res) => {
 
 		const task = await Task.findById(id);
 
+		const project = await Project.findById(req.projectId);
+
+		if (!task || task.projectId.toString() !== req.projectId) {
+			return res.status(404).json({ message: 'Задача не найдена' });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ message: 'Доступ к проекту запрещен' });
+		}
+
+
 		const data = {
 			type,
 			activity,
@@ -119,9 +158,27 @@ export const dashboardStatistics = async (req, res) => {
 	try {
 		const { userId, isAdmin } = req.user;
 
+		const projectId = req.projectId;
+
+		const project = await Project.findById(projectId).populate({
+			path: "team",
+			select: "userId",
+		});;
+
+		if (!project) {
+			return res.status(404).json({ message: 'Проект не найден' });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ message: 'Доступ к проекту запрещен' });
+		}
+
+		const projectTeam = project.team.map((member) => member.userId.toString());
+
 		const allTasks = isAdmin
 			? await Task.find({
 				isTrashed: false,
+				projectId: projectId,
 			})
 				.populate({
 					path: "team",
@@ -130,6 +187,7 @@ export const dashboardStatistics = async (req, res) => {
 				.sort({ _id: -1 })
 			: await Task.find({
 				isTrashed: false,
+				projectId: projectId,
 				team: { $all: [userId] },
 			})
 				.populate({
@@ -138,10 +196,7 @@ export const dashboardStatistics = async (req, res) => {
 				})
 				.sort({ _id: -1 });
 
-		const users = await User.find({ isActive: true })
-			.select("name title role isActive isAdmin createdAt")
-			.limit(10)
-			.sort({ _id: -1 });
+		const users = project.team;
 
 		//   group task by stage and calculate counts
 		const groupTasks = allTasks.reduce((result, task) => {
@@ -173,7 +228,7 @@ export const dashboardStatistics = async (req, res) => {
 		const summary = {
 			totalTasks,
 			last10Task,
-			users: isAdmin ? users : [],
+			users: users,
 			tasks: groupTasks,
 			graphData: groupData,
 		};
@@ -188,8 +243,21 @@ export const dashboardStatistics = async (req, res) => {
 
 export const getTasks = async (req, res) => {
 	try {
+
+		const project = await Project.findById(req.projectId)
+
+		if (!project) {
+			return res.status(404).json({ status: false, message: "Проект не найден" });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ status: false, message: "Доступ к проекту отсутствует" });
+		}
+
+		const tasksId = project.tasks
+
 		const { stage, isTrashed } = req.query;
-		let query = { isTrashed: isTrashed ? true : false };
+		let query = { _id: { $in: tasksId }, isTrashed: isTrashed ? true : false };
 
 		if (stage) {
 			query.stage = stage;
@@ -216,6 +284,20 @@ export const getTask = async (req, res) => {
 	try {
 		const { id } = req.params;
 
+		const project = await Project.findById(req.projectId)
+
+		if (!project) {
+			return res.status(404).json({ status: false, message: "Проект не найден" });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ status: false, message: "Доступ к проекту отсутствует" });
+		}
+
+		if (!project.tasks.includes(id)) {
+			return res.status(403).json({ status: false, message: "Задача отсутствует" });
+		}
+
 		const task = await Task.findById(id)
 			.populate({
 				path: "team",
@@ -224,7 +306,12 @@ export const getTask = async (req, res) => {
 			.populate({
 				path: "activities.by",
 				select: "name",
-			});
+			})
+			.populate('projectId')
+
+		if (!task || !task.projectId.toString()) {
+			return res.status(404).json({ status: false, message: "Задача не найдена" });
+		}
 
 		res.status(200).json({ status: true, task });
 
@@ -239,6 +326,20 @@ export const createSubTask = async (req, res) => {
 		const { title, tag, date } = req.body;
 
 		const { id } = req.params;
+
+		const project = await Project.findById(req.projectId)
+
+		if (!project) {
+			return res.status(404).json({ status: false, message: "Проект не найден" });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ status: false, message: "Доступ к проекту отсутствует" });
+		}
+
+		if (!project.tasks.includes(id)) {
+			return res.status(403).json({ status: false, message: "Задача отсутствует" });
+		}
 
 		const newSubTask = {
 			title,
@@ -265,7 +366,28 @@ export const updateTask = async (req, res) => {
 		const { id } = req.params;
 		const { title, date, team, stage, priority, assets } = req.body;
 
+		const project = await Project.findById(req.projectId)
+
+		if (!project) {
+			return res.status(404).json({ status: false, message: "Проект не найден" });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ status: false, message: "Доступ к проекту отсутствует" });
+		}
+
+		// if (!project.tasks.includes(id)) {
+		// 	return res.status(403).json({ status: false, message: "Задача отсутствует" });
+		// }
+
 		const task = await Task.findById(id);
+
+
+		// убрать когда все норм будет
+		// if (!project.tasks.includes(id)) {
+		// 	project.tasks.push(id);
+		// 	await project.save();
+		// }
 
 		task.title = title;
 		task.date = date;
@@ -273,13 +395,17 @@ export const updateTask = async (req, res) => {
 		task.assets = assets;
 		task.stage = stage.toLowerCase();
 
+		task.projectId = project._id;
+
 		// Find users added to the team
 		const newTeamMembers = team.filter(user => {
+			console.log(user._id)
 			return !task.team.some(existingUser => {
-				console.log(existingUser._id, user)
-				return existingUser._id.toString() === user._id.toString()
+				console.log(existingUser._id, user._id)
+				// return existingUser._id.toString() === user._id.toString()
 			})
 		});
+
 		// Update task and create notifications in parallel
 		await Promise.all([
 			...newTeamMembers.map(async (user) => {
@@ -297,13 +423,27 @@ export const updateTask = async (req, res) => {
 
 		res.status(200).json({ status: true, updatedTaskData, message: "Task updated successfully." });
 	} catch (error) {
-		return res.status(400).json({ status: false, message: error.message });
+		return res.status(400).json({ status: false, message: req.body.team });
 	}
 };
 
 export const trashTask = async (req, res) => {
 	try {
 		const { id } = req.params;
+
+		const project = await Project.findById(req.projectId)
+
+		if (!project) {
+			return res.status(404).json({ status: false, message: "Проект не найден" });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ status: false, message: "Доступ к проекту отсутствует" });
+		}
+
+		if (!project.tasks.includes(id)) {
+			return res.status(403).json({ status: false, message: "Задача отсутствует" });
+		}
 
 		const task = await Task.findById(id);
 
@@ -323,13 +463,26 @@ export const deleteRestoreTask = async (req, res) => {
 		const { id } = req.params;
 		const { actionType } = req.query;
 
+		const project = await Project.findById(req.projectId)
+
+		if (!project) {
+			return res.status(404).json({ status: false, message: "Проект не найден" });
+		}
+
+		if (!hasProjectAccess(req.user, project)) {
+			return res.status(403).json({ status: false, message: "Доступ к проекту отсутствует" });
+		}
+
+		if (!project.tasks.includes(id)) {
+			return res.status(403).json({ status: false, message: "Задача отсутствует" });
+		}
+
 		if (actionType === "delete") {
 			await Task.findByIdAndDelete(id);
 		} else if (actionType === "deleteAll") {
 			await Task.deleteMany({ isTrashed: true });
 		} else if (actionType === "restore") {
 			const resp = await Task.findById(id);
-
 			resp.isTrashed = false;
 			resp.save();
 		} else if (actionType === "restoreAll") {
@@ -339,7 +492,7 @@ export const deleteRestoreTask = async (req, res) => {
 			);
 		}
 
-		res.status(200).json({ status: true, message: `Operation performed successfully.` });
+		res.status(200).json({ status: true, message: `Операция завершена успешно.` });
 	} catch (error) {
 
 		return res.status(400).json({ status: false, message: error.message });

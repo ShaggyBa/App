@@ -16,6 +16,13 @@ const projectSchema = new mongoose.Schema({
 			ref: 'User',
 			required: true
 		},
+		userEmail: {
+			type: String,
+			required: true
+		},
+		userName: {
+			type: String,
+		},
 		accessLevel: {
 			type: String,
 			enum: ['developer', 'teamlead', 'admin', 'superadmin'],
@@ -24,6 +31,10 @@ const projectSchema = new mongoose.Schema({
 		},
 		roleName: {
 			type: String,
+		},
+		isActive: {
+			type: Boolean,
+			default: true,
 		},
 		roleDescription: {
 			type: String

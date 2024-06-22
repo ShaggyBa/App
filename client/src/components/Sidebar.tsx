@@ -1,5 +1,5 @@
 import {
-	MdDashboard, MdOutlineAddTask,
+	MdDashboard, MdList, MdOutlineAddTask,
 	MdOutlinePendingActions, MdSettings,
 	MdTaskAlt,
 } from "react-icons/md";
@@ -23,6 +23,12 @@ export const Sidebar = () => {
 	const { t } = useTranslation()
 
 	const linkData: TLinkData[] = [
+		{
+			label: t("Projects"),
+			link: "projects",
+			icon: <MdList />
+		},
+
 		{
 			label: t("Dashboard"),
 			link: "dashboard",
@@ -67,7 +73,7 @@ export const Sidebar = () => {
 	const currentPath = pathname.split("/")[1]
 
 	// After creating roles
-	const sidebarLinks = user?.isAdmin ? linkData : linkData.slice(0, 5)
+	const sidebarLinks = user?.isAdmin ? linkData : linkData.slice(0, 6)
 
 	const changeLanguage = (lng: string) => {
 		i18n.changeLanguage(lng);

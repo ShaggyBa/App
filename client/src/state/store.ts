@@ -4,13 +4,15 @@ import { apiSlice } from "./features/apiSlice";
 import { setupListeners } from '@reduxjs/toolkit/query';
 import tasksSlice from './features/taskSlice';
 import { rtkQueryErrorLogger } from '../middleware/authError';
+import projectsSlice from './features/projectsSlice';
 
 
 export const store = configureStore({
 	reducer: {
 		[apiSlice.reducerPath]: apiSlice.reducer,
 		auth: authSlice,
-		tasks: tasksSlice
+		tasks: tasksSlice,
+		projects: projectsSlice
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware().concat(rtkQueryErrorLogger, apiSlice.middleware),

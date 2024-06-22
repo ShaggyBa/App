@@ -1,11 +1,14 @@
 import User from "../models/User.js"
+import Project from "../models/Project.js"
 import { createJWT } from "../utils/index.js"
 
 export const registerUser = async (req, res) => {
 	try {
-		const { name, email, password, isAdmin, role, title } = req.body
+		const { name, email, password } = req.body
 
 		const userExist = await User.findOne({ email })
+
+		const userProjects = await Project.find({ team: { $elemMatch: { userId: userExist._id } } })
 
 		if (userExist) {
 			return res.status(400).json({
@@ -18,16 +21,22 @@ export const registerUser = async (req, res) => {
 			name,
 			email,
 			password,
-
-			isAdmin: (role === "admin") ? true : false,
-			role,
-			title
 		})
 
 		if (user) {
-			isAdmin ? createJWT(res, user._id) : null;
+			createJWT(res, user._id);
 
 			user.password = undefined
+
+			if (userProjects.length > 0) {
+				userProjects.forEach((project) => {
+					project.team.forEach((member) => {
+						if (member.userId.toString() === user._id.toString()) {
+							member.email = user.email
+						}
+					})
+				})
+			}
 
 			res.status(201).json(user)
 		}
@@ -36,7 +45,7 @@ export const registerUser = async (req, res) => {
 		}
 
 	} catch (err) {
-		return res.status(400).json({ status: false, message: "Какая то ошибка: " + err.message })
+		return res.status(400).json({ status: false, message: "Ошибка при регистрации: " + err.message })
 	}
 }
 
@@ -83,12 +92,57 @@ export const logoutUser = async (req, res) => {
 	}
 }
 
-export const getTeamList = async (req, res) => {
+export const changeUserPassword = async (req, res) => {
 	try {
-		const users = await User.find().select("name title role email isActive");
+		const { userId } = req.user;
 
-		res.status(200).json(users);
-	} catch (error) {
-		return res.status(400).json({ status: false, message: error.message });
+		const user = await User.findById(userId)
+
+		if (user) {
+			user.password = req.body.password || user.password
+
+			await user.save()
+
+			user.password = undefined
+
+			res.status(201).json({
+				status: true,
+				message: "Пароль изменен успешно",
+			})
+		}
+		else {
+			return res.status(404).json({ status: false, message: "Пользователь не найден" })
+		}
+
+	} catch (err) {
+		return res.status(400).json({ status: false, message: err.message })
+	}
+}
+
+export const updateUserProfile = async (req, res) => {
+	try {
+		const { id } = req.body
+
+		const user = await User.findById(id)
+
+		if (user) {
+			user.name = req.body.name || user.name
+
+			const updateUser = await user.save()
+
+			user.password = undefined
+
+			res.status(201).json({
+				status: true,
+				message: "Пользователь обновлен успешно",
+				user: updateUser
+			})
+		}
+		else {
+			return res.status(404).json({ status: false, message: "Пользователь не найден" })
+		}
+
+	} catch (err) {
+		return res.status(400).json({ status: false, message: err.message })
 	}
 }

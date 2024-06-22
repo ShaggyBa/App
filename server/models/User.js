@@ -11,17 +11,14 @@ const UserSchema = new mongoose.Schema({
 	},
 	title: {
 		type: String,
-		required: true
 	},
 	role: {
 		type: String,
 		enum: ['developer', 'teamlead', 'admin', 'superadmin'],
 		default: 'developer',
-		required: true
 	},
 	isAdmin: {
 		type: Boolean,
-		required: true,
 		default: false
 	},
 	email: {
@@ -46,7 +43,6 @@ const UserSchema = new mongoose.Schema({
 	}],
 	isActive: {
 		type: Boolean,
-		required: true,
 		default: true
 	},
 	profileImage: String,

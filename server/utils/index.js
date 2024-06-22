@@ -24,3 +24,7 @@ export const createJWT = (res, userId) => {
 		maxAge: 1000 * 60 * 60 * 24 * 1,
 	})
 }
+
+export const hasProjectAccess = (user, project) => {
+	return project.owner._id.toString() === user.userId.toString() || project.team.some(member => member.userId.toString() === user.userId.toString());
+};

@@ -17,10 +17,7 @@ const UserSchema = new mongoose.Schema({
 		enum: ['developer', 'teamlead', 'admin', 'superadmin'],
 		default: 'developer',
 	},
-	isAdmin: {
-		type: Boolean,
-		default: false
-	},
+
 	email: {
 		type: String,
 		required: true,

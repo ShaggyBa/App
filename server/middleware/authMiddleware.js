@@ -8,12 +8,12 @@ const protectRoute = async (req, res, next) => {
 		if (token) {
 			const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
 
-			const resp = await User.findById(decodedToken.userId).select("isAdmin email")
+			const resp = await User.findById(decodedToken.userId).select("email name")
 
 
 			req.user = {
 				email: resp.email,
-				isAdmin: resp.isAdmin,
+				userName: resp.name,
 				userId: decodedToken.userId
 			}
 

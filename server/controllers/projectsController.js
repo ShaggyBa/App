@@ -2,6 +2,7 @@
 import { hasProjectAccess } from "../utils/index.js";
 import Project from "../models/Project.js";
 import User from "../models/User.js";
+import Task from "../models/Task.js"
 
 
 
@@ -17,7 +18,12 @@ export const getProjects = async (req, res) => {
 				{ owner: user.userId },
 				{ team: { $elemMatch: { userId: user.userId } } },
 			],
-		}).populate(['tasks', 'owner', 'team.userId']);
+
+		}).populate(['tasks'])
+			.populate({
+				path: "team",
+				select: 'userId._id'
+			})
 		// Filter projects based on access control
 		// projects = projects.filter(project => hasProjectAccess(user, project));
 
@@ -31,7 +37,11 @@ export const getProjects = async (req, res) => {
 export const getProject = async (req, res) => {
 	try {
 		const projectId = req.params.projectId;
-		const project = await Project.findById(projectId).populate(['tasks', 'owner', 'team.userId']);
+		const project = await Project.findById(projectId).populate(['tasks'])
+			.populate({
+				path: "team",
+				select: 'userId._id'
+			})
 
 		if (!project) {
 			return res.status(404).json({ message: 'Проект не найден' });
@@ -52,10 +62,15 @@ export const createProject = async (req, res) => {
 	try {
 		const { name } = req.body;
 		const { userId } = req.user;
-		console.log(req.user.email)
-		const project = await Project.create({ name, owner: userId, team: [{ userId: userId, accessLevel: 'admin', roleName: 'owner', userEmail: req.user.email }] });
 
 		const user = await User.findById(userId);
+
+		if (!user) {
+			return res.status(404).json({ message: 'Пользователь не найден' });
+		}
+
+		const project = await Project.create({ name, owner: userId, team: [{ userId: userId, accessLevel: 'admin', roleName: 'owner', userEmail: req.user.email, userName: req.user.userName }], });
+
 
 		user.projects.push(project._id);
 		await user.save();
@@ -101,7 +116,35 @@ export const deleteProject = async (req, res) => {
 			return res.status(403).json({ message: 'Доступ к проекту запрещен' });
 		}
 
+
+		const user = await User.findById(project.owner);
+		if (!user) {
+			return res.status(404).json({ message: 'Пользователь не найден' });
+		}
+		user.projects = user.projects.filter(projectId => projectId.toString() !== projectId);
+
+		const tasks = await Task.find({ project: projectId });
+		for (const task of tasks) {
+			await Task.findByIdAndDelete(task._id);
+
+			user.tasks = user.tasks.filter(taskId => taskId.toString() !== task._id.toString());
+		}
+
+		const participants = await User.find({ projects: projectId });
+		for (const participant of participants) {
+			participant.projects = participant.projects.filter(projectId => projectId.toString() !== projectId.toString());
+
+			participant.tasks = participant.tasks.filter(taskId => taskId.toString() !== projectId.toString());
+
+			await participant.save();
+		}
+
+		await user.save();
+
 		await Project.findByIdAndDelete(projectId);
+
+
+
 		res.json({ message: 'Проект успешно удален' });
 	} catch (error) {
 		console.error(error);

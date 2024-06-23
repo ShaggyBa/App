@@ -6,9 +6,9 @@ interface User {
 	email: string,
 	password: string,
 	projects: string[],
-	profileImage: string,
-	country: string,
-	company: string,
+	// profileImage: string,
+	// country: string,
+	// company: string,
 }
 
 interface AuthState {

@@ -23,9 +23,8 @@ const projectsSlice = createSlice({
 		},
 
 		// Update projects
-		updateProject: (state, action: PayloadAction<any>) => {
-			console.log("Update projects Reducer", action.payload)
-			const taskIndex = state.projects.findIndex((projects: any) => projects._id === action.payload._id);
+		updateProject: (state, action: PayloadAction<{ id: string, data: any }>) => {
+			const taskIndex = state.projects.findIndex((projects: any) => projects._id === action.payload.id);
 			if (taskIndex !== -1) {
 				state.projects[taskIndex] = action.payload;
 			}
@@ -33,7 +32,6 @@ const projectsSlice = createSlice({
 
 		// Create projects
 		createProject: (state, action: PayloadAction<any>) => {
-			console.log("Create projects Reducer", action.payload)
 			state.projects.push(action.payload);
 		},
 

@@ -7,6 +7,7 @@ import Tasks from "./pages/Tasks"
 import Trash from "./pages/Trash"
 import Users from "./pages/Users"
 import Projects from "./pages/Projects"
+import ProjectPage from "./pages/ProjectPage"
 
 import Register from "./pages/Register"
 import { Toaster } from "sonner"
@@ -21,6 +22,7 @@ function App() {
 					<Route path='/' element={<Navigate to={'/dashboard'} />} />
 					<Route path='/dashboard' element={<Dashboard />} />
 					<Route path='/projects' element={<Projects />} />
+					<Route path='/projects/:id' element={<ProjectPage />} />
 					<Route path='/tasks' element={<Tasks />} />
 					<Route path='/task/:id' element={<TaskDetails />} />
 

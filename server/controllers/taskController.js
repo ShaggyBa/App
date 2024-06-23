@@ -20,14 +20,15 @@ export const createTask = async (req, res) => {
 			return res.status(403).json({ message: 'Доступ к проекту запрещен' });
 		}
 
-		let text = "New task - " + title + " has been assigned to you";
-		if (team?.length > 1) {
-			text = text + ` and ${team?.length - 1} others.`;
+		let text = "Новая задача - " + title + " была поручена вам";
+		if (team.length > 1) {
+			text = text + ` и ${team.length - 1} участникам.`;
 		}
 
 		text =
 			text +
-			"The task priority is set a " + priority + " priority. The task date is " + new Date(date).toDateString() + ".";
+			` Приоритет задачи - ${priority}. 
+			Дата задачи - ${date}.`;
 
 		const activity = {
 			type: "assigned",
@@ -50,11 +51,17 @@ export const createTask = async (req, res) => {
 		await project.save();
 		await task.save()
 
-		await Notification.create({
-			team,
-			text,
-			task: task._id,
-		});
+		const users = await User.find({ _id: { $in: task.team } });
+		users.forEach(async (user) => {
+			user.tasks.push(task._id);
+			await user.save();
+			Notification.create({
+				team: user.team,
+				text,
+				task: task._id,
+			});
+		})
+
 		const createdTaskData = await Task.findById(task._id).populate({ path: "team", select: "name title role email" });
 
 		res.status(200).json({ status: true, createdTaskData, message: "Task created successfully." });
@@ -96,15 +103,26 @@ export const duplicateTask = async (req, res) => {
 		await project.save();
 
 		//alert users of the task
-		let text = "New task has been assigned to you. ";
+		let text = "Новая задача - " + newTask.title + " была поручена вам";
 		if (task.team.length > 1) {
-			text = text + ` and ${task.team.length - 1} others.`;
+			text = text + ` и ${task.team.length - 1} участникам.`;
 		}
 
 		text =
 			text +
-			` The task priority is set a ${task.priority} priority. 
-			The task date is ${task.date.toDateString()}.`;
+			` Приоритет задачи - ${task.priority}. 
+			Дата задачи - ${task.date.toDateString()}.`;
+
+		const users = await User.find({ _id: { $in: task.team } });
+		users.forEach(async (user) => {
+			user.tasks.push(newTask._id);
+			await user.save();
+			Notification.create({
+				team: user.team,
+				text,
+				task: newTask._id,
+			});
+		})
 
 		await Notification.create({
 			team: task.team,
@@ -112,7 +130,7 @@ export const duplicateTask = async (req, res) => {
 			task: newTask._id,
 		});
 
-		res.status(200).json({ status: true, message: "Task duplicated successfully." });
+		res.status(200).json({ status: true, message: "Задача дублирована успешно." });
 	} catch (error) {
 		return res.status(400).json({ status: false, message: error.message });
 	}
@@ -156,7 +174,7 @@ export const postTaskActivity = async (req, res) => {
 
 export const dashboardStatistics = async (req, res) => {
 	try {
-		const { userId, isAdmin } = req.user;
+		const { userId } = req.user;
 
 		const projectId = req.projectId;
 
@@ -175,26 +193,25 @@ export const dashboardStatistics = async (req, res) => {
 
 		const projectTeam = project.team.map((member) => member.userId.toString());
 
-		const allTasks = isAdmin
-			? await Task.find({
-				isTrashed: false,
-				projectId: projectId,
+		const allTasks = await Task.find({
+			isTrashed: false,
+			projectId: projectId,
+		})
+			.populate({
+				path: "team",
+				select: "name role title email",
 			})
-				.populate({
-					path: "team",
-					select: "name role title email",
-				})
-				.sort({ _id: -1 })
-			: await Task.find({
-				isTrashed: false,
-				projectId: projectId,
-				team: { $all: [userId] },
-			})
-				.populate({
-					path: "team",
-					select: "name role title email",
-				})
-				.sort({ _id: -1 });
+			.sort({ _id: -1 })
+		// : await Task.find({
+		// 	isTrashed: false,
+		// 	projectId: projectId,
+		// 	team: { $all: [userId] },
+		// })
+		// 	.populate({
+		// 		path: "team",
+		// 		select: "name role title email",
+		// 	})
+		// 	.sort({ _id: -1 });
 
 		const users = project.team;
 

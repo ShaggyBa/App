@@ -1,5 +1,11 @@
 {
 	"Active": "Active",
+	"CreateProject": "Create project",
+	"ProjectName": "Project Name",
+	"YourProjects": "Your Projects",
+	"OtherProjects": "Other Projects",
+	"UpdateProject": "Update project",
+	"DateCreated": "Date created",
 	"AddAssets": "Add Assets",
 	"AddNewUser": "Add New User",
 	"AddSubtask": "Add subtask",

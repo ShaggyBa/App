@@ -1,5 +1,11 @@
 {
 	"Active": "Активен",
+	"CreateProject": "Создать проект",
+	"YourProjects": "Ваши проекты",
+	"OtherProjects": "Другие проекты",
+	"DateCreated": "Дата создания",
+	"ProjectName": "Название проекта",
+	"UpdateProject": "Обновить проект",
 	"AddAssets": "Добавить файлы",
 	"AddNewUser": "Добавить пользователя",
 	"AddSubTask": "ДОБАВИТЬ ПОДЗАДАЧУ",

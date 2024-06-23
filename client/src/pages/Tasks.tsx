@@ -186,7 +186,6 @@ const Tasks = () => {
 				open={open}
 				setOpen={setOpen}
 				task={selectedTask}
-				key={new Date().getTime()}
 			/>
 
 			<ConfirmationWindow

@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import Project from "../models/Project.js"
+import Notification from "../models/Notification.js";
 import { hasProjectAccess } from "../utils/index.js";
 
 export const updateUserInfo = async (req, res) => {
@@ -108,6 +109,13 @@ export const addUserToProject = async (req, res) => {
 
 		await user.save()
 
+		//Включить когда все ок
+		// await Notification.create({
+		// 	team: [user],
+		// 	text: `Вы были добавлены в проект "${project.name}".`,
+		// 	project: project._id,
+		// });
+
 		const updateProject = await project.save()
 
 		res.status(201).json({
@@ -158,6 +166,13 @@ export const activateUser = async (req, res) => {
 
 		await project.save()
 
+		//Включить когда все ок
+		// await Notification.create({
+		// 	team: [user],
+		// 	text: `Вы были ${typeAction ? "активированы" : "деактивированы"} в проекте "${project.name}".`,
+		// 	project: project._id,
+		// });
+
 		res.status(201).json({
 			status: true,
 			message: `Пользователь: ${id} был ${typeAction ? "активирован" : "деактивирован"}`,
@@ -198,6 +213,13 @@ export const deleteUserFromProject = async (req, res) => {
 		await project.save();
 		user.projects = user.projects.filter((project) => project.toString() !== projectId);
 		await user.save();
+
+		//Включить когда все ок
+		// await Notification.create({
+		// 	team: [user],
+		// 	text: `Вы были удалены из проекта "${project.name}".`,
+		// 	project: project._id,
+		// });
 
 		res.status(200).json({
 			status: true,

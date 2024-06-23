@@ -5,7 +5,7 @@ import { getInitials } from "utils/index"
 import { TTeam } from "types/task.types"
 import clsx from "clsx"
 
-export const UserInfo = ({ user, bgColor }: { user: TTeam, bgColor: string }) => {
+export const UserInfo = ({ user, bgColor }: { user: TTeam | { name: string, title: string, email: string }, bgColor: string }) => {
 	return <div className="px-4">
 		<Popover className="relative">
 			{() => (
